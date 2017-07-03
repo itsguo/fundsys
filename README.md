@@ -1,4 +1,4 @@
-# 基金管理系统后台代码
+# 基金管理系统后台(java)代码
 
 ----------
 ### 使用 Struts2+hibernate+spring<br>
