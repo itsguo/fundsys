@@ -1,0 +1,107 @@
+package edu.fjut.fundsys.action;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.fjut.fundsys.jwt.Jwt;
+import edu.fjut.fundsys.service.ClientUserService;
+/**
+ * 
+ * @author Guo
+ *
+ */
+public class ClientUserAction extends BaseAction {
+	private String ClientId;
+	private String ClientPwd;
+	private String ClientName;
+	private String Sex;
+	private String Phone;
+	private String Address;
+	private String Email;
+	private Double Balance;
+	private Boolean Active;
+	private int resultcode;
+	private String message;
+	private String token;
+	
+
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setClientId(String clientId) {
+		ClientId = clientId;
+	}
+
+
+
+	public void setClientPwd(String clientPwd) {
+		ClientPwd = clientPwd;
+	}
+
+
+	public void setClientName(String clientName) {
+		ClientName = clientName;
+	}
+
+	public void setSex(String sex) {
+		Sex = sex;
+	}
+
+	public void setPhone(String phone) {
+		Phone = phone;
+	}
+
+	public void setAddress(String address) {
+		Address = address;
+	}
+
+	public void setEmail(String email) {
+		Email = email;
+	}
+
+	public void setBalance(Double balance) {
+		Balance = balance;
+	}
+
+	public void setActive(Boolean active) {
+		Active = active;
+	}
+
+	private ClientUserService clientUserService;
+
+	public void setClientUserService(ClientUserService clientUserService) {
+		this.clientUserService = clientUserService;
+	}
+    
+	
+/**
+ * 
+ */
+	public String clientLogin(){
+		if(clientUserService.checkUser(ClientId, ClientPwd)){
+			Map<String , Object> payload=new HashMap<String, Object>();
+			Date date=new Date();
+			payload.put("uid",ClientId);//用户ID
+			payload.put("iat", date.getTime());//生成时间
+			payload.put("ext",date.getTime()+1000*60*60);//过期时间1小时
+			token=Jwt.createToken(payload);
+			resultcode=0;
+			message="认证成功";
+         }
+		else {			
+			resultcode=-1;
+		    message="认证失败";}
+		
+		return "clientlogin";
+	}
+}

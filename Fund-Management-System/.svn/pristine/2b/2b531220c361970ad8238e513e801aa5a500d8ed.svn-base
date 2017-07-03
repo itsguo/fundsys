@@ -1,0 +1,32 @@
+package edu.fjut.fundsys.service;
+
+import java.util.List;
+
+import edu.fjut.fundsys.dao.AdminUserDao;
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.Fund;
+
+public class AdminUserServiceImpl implements AdminUserService{
+    private AdminUserDao adminuserdao;
+    
+	public void setAdminuserdao(AdminUserDao adminuserdao) {
+		this.adminuserdao = adminuserdao;
+	}
+
+	@Override
+	public Boolean checkUser(AdminUser user) {
+	 return  adminuserdao.checkUser(user);
+	}
+
+	@Override
+	public void fundAdd(Fund fund) {
+		adminuserdao.fundAdd(fund);
+		
+	}
+
+	@Override
+	public List<Fund> fundList() {
+	   return adminuserdao.fundList();
+	}
+
+}

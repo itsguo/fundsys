@@ -1,0 +1,56 @@
+package edu.fjut.fundsys.action;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.service.FundTransInfoService;
+
+public class FundTransInfoAction extends BaseAction {
+	/*实体 */
+	private FundTransInfo fundTrans;
+	/* service */
+	private FundTransInfoService fundTransInfoService;
+	/* 返回json数据 */
+	private Map<String, Object> data = null;
+	private int resultcode;
+	private String message;
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+    
+	public void setFundTrans(FundTransInfo fundTrans) {
+		this.fundTrans = fundTrans;
+	}
+	
+	public FundTransInfo getFundTrans() {
+		return fundTrans;
+	}
+
+	public void setFundTransInfoService(FundTransInfoService fundTransInfoService) {
+		this.fundTransInfoService = fundTransInfoService;
+	}
+	/**
+	 * 申购基金
+	 * @return "applyfund"
+	 */
+	public String applyFund(){
+		//fundTrans.transType  fundTrans.amount  fundTrans.price  fundTrans.clientUser  fundTrans.fund
+		data=new HashMap<String, Object>();
+		fundTransInfoService.applyFund(fundTrans);
+		data.put("fundTrans", fundTrans.getTransType());
+		resultcode=0;
+		message="交易成功";
+		return "applyfund";
+	}
+
+}

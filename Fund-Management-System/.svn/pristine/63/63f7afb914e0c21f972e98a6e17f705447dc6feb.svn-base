@@ -1,0 +1,66 @@
+#login1{
+	width: 557px;
+	height: 482px;
+    border-radius:10px;
+    position: absolute;
+    top: 60px; left:690px; bottom: 0; right: 0;
+}
+ #login2{
+	width: 557px;
+	height: 118px;
+	background-color:rgb(50,60,102);
+	border-radius:10px;
+}
+#login3{ 
+	height: 364px;
+    background-color:rgb(241,244,248);
+    position: relative;/*×îÍâ²ãDIV  */
+    border-radius:10px;
+}
+#foot{
+	position: absolute;
+	top: 680px; left: 0; bottom: 0; right: 0;	
+}
+
+
+.char1{ 
+	position: absolute;
+    top: 35px; left:10px; bottom: 0; right: 0;
+	font-size: 40px;
+    color: white;
+    font-family:Helvetica;
+    font-weight: bold;
+}
+.text1{
+	  margin-top:20px;
+	  margin-left:20px;
+}
+.text2{
+	width: 450px;
+	height: 50px;
+    border-radius:5px;
+	
+}
+.sub2{
+	position:absolute;
+	left:330px;
+	top:315px;
+	width: 84px;
+	height: 43px;
+	background-color:rgb(66,138,202);
+	 color:white;
+	 border-radius:10px;
+}
+.sub2:HOVER{
+	background-color:green;
+	
+}
+#error{
+	list-style-type:none;
+	position:absolute;
+	top:510px;
+	left:850px;
+    color:red;
+    width:200px;
+    text-align: center;
+      }

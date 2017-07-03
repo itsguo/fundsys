@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+	<class name="Fund" table="FUND">
+
+		<id name="FundNo" type="int" column="FUND_NO" >
+			<generator class="native"></generator> <!-- 主键生成策略 -->
+		</id>
+        <property name="FundName" type="string" length="40" column="FUND_NAME" not-null="true"></property>
+		<property name="FundDescribe" type="string" length="100" column="DESCRIPTION"></property>
+		<property name="FundStatus" type="string" length="3" column="STATUS"></property>
+		<property name="FundCreateDate" type="date" column="CREATED_DATE"></property>
+		<property name="rate" type="double" column="RATE" not-null="true"></property>
+	   <many-to-one name="fundType" class="edu.fjut.fundsys.domain.FundType" column="FUND_TYPE_ID" fetch="join" lazy="false"></many-to-one>	
+	</class>
+
+</hibernate-mapping>

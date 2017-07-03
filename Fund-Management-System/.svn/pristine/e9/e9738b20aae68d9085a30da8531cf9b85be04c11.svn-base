@@ -1,0 +1,54 @@
+package edu.fjut.fundsys.domain;
+
+import java.util.Date;
+/**
+ * »ù½ðÀà
+ *
+ * @author Guo
+ *
+ */
+public class Fund extends ValueObject {
+   private Integer FundNo;
+   private String FundName;
+   private Double FundPrice;
+   private String FundDescribe;
+   private String FundStatus="T";
+   private Date FundCreateDate;
+public Integer getFundNo() {
+	return FundNo;
+}
+public void setFundNo(Integer fundNo) {
+	FundNo = fundNo;
+}
+public String getFundName() {
+	return FundName;
+}
+public void setFundName(String fundName) {
+	FundName = fundName;
+}
+public Double getFundPrice() {
+	return FundPrice;
+}
+public void setFundPrice(Double fundPrice) {
+	FundPrice = fundPrice;
+}
+public String getFundDescribe() {
+	return FundDescribe;
+}
+public void setFundDescribe(String fundDescribe) {
+	FundDescribe = fundDescribe;
+}
+public String getFundStatus() {
+	return FundStatus;
+}
+public void setFundStatus(String fundStatus) {
+	FundStatus = fundStatus;
+}
+public Date getFundCreateDate() {
+	return FundCreateDate;
+}
+public void setFundCreateDate(Date fundCreateDate) {
+	FundCreateDate = fundCreateDate;
+}
+   
+}

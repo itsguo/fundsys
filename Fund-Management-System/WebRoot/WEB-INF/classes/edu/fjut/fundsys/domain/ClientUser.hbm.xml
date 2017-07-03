@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+	<class name="ClientUser" table="CLIENT">
+
+		<id name="ClientId" type="string" column="CLIENT_ID" length="18">
+			<generator class="assigned"></generator> <!-- 主键生成策略 -->
+		</id>
+
+		<property name="ClientPwd" type="string" length="16" column="CLIENT_PWD"
+			not-null="true"></property>
+		<property name="ClientName" type="string" length="30"
+			column="CLIENT_NAME" not-null="true"></property>
+		<property name="Sex" type="string" length="1" column="SEX"></property>
+		<property name="Phone" type="string" length="20" column="PHONE"></property>
+		<property name="Address" type="string" length="20" column="ADDRESS"></property>
+		<property name="Email" type="string" length="50" column="EMAIL"></property>
+		<property name="Balance"  column="BALANCE"></property>
+		<property name="Active" column="ACTIVE"></property>
+	    <property name="totolEarnings" type="double" column="TOTAL_EARNINGS"></property>
+	</class>
+
+</hibernate-mapping>

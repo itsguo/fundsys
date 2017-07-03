@@ -1,0 +1,35 @@
+package edu.fjut.fundsys.domain;
+
+public class FundType extends ValueObject {
+	private Integer fundTypeId = 1000;
+	private String fundTypeName;
+
+	public Integer getFundTypeId() {
+		return fundTypeId;
+	}
+
+	public void setFundTypeId(Integer fundTypeId) {
+		this.fundTypeId = fundTypeId;
+	}
+
+	public String getFundTypeName() {
+		return fundTypeName;
+	}
+
+	public void setFundTypeName(String fundTypeName) {
+		this.fundTypeName = fundTypeName;
+	}
+   
+	
+	public FundType(String fundTypeName) {
+		super();
+		this.fundTypeName = fundTypeName;
+	}
+
+	@Override
+	public String toString() {
+		return "FundType [fundTypeId=" + fundTypeId + ", fundTypeName="
+				+ fundTypeName + "]";
+	}
+
+}

@@ -1,0 +1,70 @@
+package edu.fjut.fundsys.domain;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+/**
+ * »ù½ðÀà
+ *
+ * 
+ *
+ */
+public class Fund extends ValueObject {
+   private Integer FundNo;
+   private String FundName;
+   private Double FundPrice;
+   private String FundDescribe;
+   private String FundStatus="Y";
+   private String Date;
+   private Date FundCreateDate;
+   
+
+
+public void setDate(String date) throws ParseException {
+	SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+	FundCreateDate=sdf.parse(date);
+	Date = date;
+}
+
+public Integer getFundNo() {
+	return FundNo;
+}
+public void setFundNo(Integer fundNo) {
+	FundNo = fundNo;
+}
+public String getFundName() {
+	return FundName;
+}
+public void setFundName(String fundName) {
+	FundName = fundName;
+}
+public Double getFundPrice() {
+	return FundPrice;
+}
+public void setFundPrice(Double fundPrice) {
+	FundPrice = fundPrice;
+}
+public String getFundDescribe() {
+	return FundDescribe;
+}
+public void setFundDescribe(String fundDescribe) {
+	FundDescribe = fundDescribe;
+}
+public String getFundStatus() {
+	return FundStatus;
+}
+public void setFundStatus(String fundStatus) {
+	FundStatus = fundStatus;
+}
+
+
+
+public void setFundCreateDate(Date fundCreateDate) {
+	FundCreateDate = fundCreateDate;
+}
+
+public Date getFundCreateDate() {
+	return FundCreateDate;
+}
+
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd" [
+<!ENTITY contextInclude SYSTEM "org/springframework/web/portlet/context/WEB-INF/contextInclude.xml">
+]>
+
+<beans>
+
+    <!-- Spring提供了一个数据源，类似连接池的功能 -->
+    <bean id="dataSource"  class="org.springframework.jdbc.datasource.DriverManagerDataSource">    
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />  
+        <property name="url" value="jdbc:mysql://localhost:3306/funddb" />  
+        <property name="username" value="root" />  
+        <property name="password" value="123" />  
+    </bean>
+    
+    <!-- hibernate session factory -->
+    <bean id="sessionFactory"
+		  class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>	
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQL5Dialect
+				</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>				
+			</props>
+		</property>
+		<property name="mappingResources">
+		   <list>
+		      <value>/edu/fjut/fundsys/domain/AdminUser.hbm.xml</value>
+		   </list>
+		</property>
+    </bean>    
+     <bean id="AdminUserLoginDao" class="edu.fjut.fundsys.dao.AdminUserLoginDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>    
+    
+    <bean id="AdminUserLoginService" class="edu.fjut.fundsys.service.AdminUserLoginServiceImpl">
+        <property name="adminuserlogindao" ref="AdminUserLoginDao"></property>
+    </bean>  
+    
+    <bean id="AdminUserLoginAction" class="edu.fjut.fundsys.action.AdminUserLoginAction" scope="prototype">
+        <property name="adminUserLoginService" ref="AdminUserLoginService"></property>
+    </bean>       
+     
+</beans>

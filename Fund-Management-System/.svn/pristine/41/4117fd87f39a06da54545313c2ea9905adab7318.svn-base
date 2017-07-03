@@ -1,0 +1,19 @@
+/**
+ * 
+ */
+package edu.fjut.fundsys.dao;
+
+import edu.fjut.fundsys.domain.User;
+
+
+
+/**
+ * @author gjm
+ *
+ */
+public interface UserDao {
+
+	User getUserByNo(String userNo);
+	void saveUser(User user);
+	Boolean ajaxcheck(String userNo);
+}

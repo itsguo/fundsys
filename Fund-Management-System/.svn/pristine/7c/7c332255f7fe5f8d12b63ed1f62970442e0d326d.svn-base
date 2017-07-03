@@ -1,0 +1,31 @@
+package edu.fjut.fundsys.service;
+
+import java.util.List;
+
+import edu.fjut.fundsys.dao.FundTransInfoDao;
+import edu.fjut.fundsys.domain.FundTransInfo;
+
+public class FundTransInfoServiceImpl implements FundTransInfoService {
+       private FundTransInfoDao fundTransInfoDao;
+    
+	public void setFundTransInfoDao(FundTransInfoDao fundTransInfoDao) {
+		this.fundTransInfoDao = fundTransInfoDao;
+	}
+
+	@Override
+	public void applyFund(FundTransInfo fundTransInfo) {
+		 fundTransInfoDao.applyFund(fundTransInfo);
+	}
+
+	@Override
+	public void ransomFund(FundTransInfo fundTransInfo) {
+		fundTransInfoDao.ransomFund(fundTransInfo);
+		
+	}
+
+	@Override
+	public List<FundTransInfo> loadAll() {
+		// TODO Auto-generated method stub
+		return fundTransInfoDao.loadAll();
+	}
+}

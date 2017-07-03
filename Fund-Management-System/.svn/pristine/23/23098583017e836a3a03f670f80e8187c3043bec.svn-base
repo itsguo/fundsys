@@ -1,0 +1,8 @@
+package edu.fjut.fundsys.utils;
+
+public class VerificationCode {
+	public int getRandNum(int min, int max) {
+		int randNum = min + (int) (Math.random() * ((max - min) + 1));
+		return randNum;
+	}
+}

@@ -1,0 +1,93 @@
+package edu.fjut.fundsys.domain;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.apache.struts2.json.annotations.JSON;
+
+/**
+ * 基金类
+ * 
+ * 
+ * 
+ */
+public class Fund extends ValueObject {
+	private Integer FundNo = 10001;
+	private String FundName;
+	// 基金目前总价
+	private Double FundPrice;
+	private String FundDescribe;
+	private String FundStatus = "已上市";
+
+
+
+	private String Date;
+	private Date FundCreateDate;
+	private Double rate = 0.3;
+	
+	public Double getRate() {
+		return rate;
+	}
+
+	public void setRate(Double rate) {
+		this.rate = rate;
+	}
+
+	public void setDate(String date) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		FundCreateDate = sdf.parse(date);
+		Date = date;
+	}
+
+	public Integer getFundNo() {
+		return FundNo;
+	}
+
+	public void setFundNo(Integer fundNo) {
+		FundNo = fundNo;
+	}
+
+	public String getFundName() {
+		return FundName;
+	}
+
+	public void setFundName(String fundName) {
+		FundName = fundName;
+	}
+
+	public Double getFundPrice() {
+		return FundPrice;
+	}
+
+	public void setFundPrice(Double fundPrice) {
+		FundPrice = fundPrice;
+	}
+
+	public String getFundDescribe() {
+		return FundDescribe;
+	}
+
+	public void setFundDescribe(String fundDescribe) {
+		FundDescribe = fundDescribe;
+	}
+
+	public String getFundStatus() {
+		return FundStatus;
+	}
+
+	public void setFundStatus(String fundStatus) {
+		FundStatus = fundStatus;
+	}
+
+	public void setFundCreateDate(Date fundCreateDate) {
+		FundCreateDate = fundCreateDate;
+	}
+
+	@JSON(format = "yyyy-MM-dd")
+	public Date getFundCreateDate() {
+		return FundCreateDate;
+	}
+
+}

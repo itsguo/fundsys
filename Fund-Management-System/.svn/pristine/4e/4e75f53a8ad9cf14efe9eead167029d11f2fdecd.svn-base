@@ -1,0 +1,57 @@
+package edu.fjut.fundsys.service;
+
+import java.util.List;
+
+import edu.fjut.fundsys.dao.FundTransInfoDao;
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.domain.RateRecord;
+
+public class FundTransInfoServiceImpl implements FundTransInfoService {
+       private FundTransInfoDao fundTransInfoDao;
+    
+	public void setFundTransInfoDao(FundTransInfoDao fundTransInfoDao) {
+		this.fundTransInfoDao = fundTransInfoDao;
+	}
+
+	@Override
+	public List<FundTransInfo> loadAll() {
+		// TODO Auto-generated method stub
+		return fundTransInfoDao.loadAll();
+	}
+
+	@Override
+	public void applyFund(FundTransInfo fundTransInfo) {
+		  fundTransInfoDao.applyFund(fundTransInfo);
+		
+	}
+
+	@Override
+	public void ransomFund(FundTransInfo fundTransInfo) {
+		fundTransInfoDao.ransomFund(fundTransInfo);
+		
+	}
+
+	@Override
+	public void yestodayEarn() {
+	    fundTransInfoDao.yestodayEarn();
+		
+	}
+
+	@Override
+	public List<RateRecord> rateRecords() {
+        return fundTransInfoDao.rateRecords();
+	}
+
+	@Override
+	public List<RateRecord> rateRecords(Integer fundNo) {
+    return fundTransInfoDao.rateRecords(fundNo);
+	}
+
+	@Override
+	public List<FundHold> loadFundHoldById(String ClientNo) {
+    return fundTransInfoDao.loadFundHoldById(ClientNo);
+	}
+
+
+}

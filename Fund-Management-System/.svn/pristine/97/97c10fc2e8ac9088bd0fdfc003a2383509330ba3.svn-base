@@ -1,0 +1,22 @@
+package edu.fjut.fundsys.utils;
+
+import java.util.Random;
+
+public class RandomUtils {
+	public static Double getChangeNum() {
+		Random random = new Random();
+		int result = random.nextInt(2000);
+		return result * 0.000001;
+
+	}
+
+	public static Boolean getPlusOrMinus() {
+		Random random = new Random();
+		int result = random.nextInt(11);
+		if (result % 2 == 0) {
+			return false;
+		} else
+			return true;
+
+	}
+}

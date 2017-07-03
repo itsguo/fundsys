@@ -1,0 +1,70 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.exception.DataAccessException;
+
+public class ClientUserDaoImpl extends HibernateDaoSupport implements
+		ClientUserDao {
+
+	@Override
+	public void checkUser(String no, String pwd) {
+	      ClientUser clientUser=(ClientUser) this.getHibernateTemplate().get(ClientUser.class, no);
+	      if(clientUser==null) {throw new DataAccessException("用户不存在");}
+	      if(!clientUser.getClientPwd().equals(pwd)){throw new DataAccessException("用户存在,但密码不正确");}
+	}
+
+	@Override
+	public void addclientUser(ClientUser clientUser) {
+		this.getHibernateTemplate().save(clientUser);
+
+	}
+
+	@Override
+	public ClientUser getClientUserById(String clientUserId) {
+		return (ClientUser) this.getHibernateTemplate().get(ClientUser.class,
+				clientUserId);
+	}
+
+	@Override
+	public void updateClientUser(ClientUser clientUser) {
+		this.getHibernateTemplate().update(clientUser);
+	}
+
+	@Override
+	public void modifyClientUserPwd(String clientUserId, String pwd) {
+		this.getHibernateTemplate().bulkUpdate(
+				"update client set client_pwd=? where client_id=?",
+				new Object[] { pwd, clientUserId });
+	}
+
+	@Override
+	public void clientUserSaveBalance(String clientUserId, int balance) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clientUserGetBalance(String clientUserId, int balance) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clientUserTransBalance(String anotherClientUserId,
+			String anotherClientUserName, int transBalance, String clientUserId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<ClientUserTrans> clientUserFindAll(String clientUserId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

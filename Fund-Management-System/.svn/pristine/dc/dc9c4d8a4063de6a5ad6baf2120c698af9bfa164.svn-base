@@ -1,0 +1,86 @@
+#login1{
+	width: 557px;
+	height: 482px;
+    border-radius:10px;
+    position: absolute;
+    top: 60px; left:690px; bottom: 0; right: 0;
+}
+ #login2{
+	width: 557px;
+	height: 118px;
+	background-color:rgb(50,60,102);
+	border-radius:10px;
+}
+#login3{ 
+	height: 364px;
+    background-color:rgb(241,244,248);
+    position: relative;/*×îÍâ²ãDIV  */
+    border-radius:10px;
+}
+#foot{
+	position: absolute;
+	top: 680px; left: 0; bottom: 0; right: 0;	
+}
+
+
+.char1{ 
+	position: absolute;
+    top: 35px; left:10px; bottom: 0; right: 0;
+	font-size: 40px;
+    color: white;
+    font-family:Helvetica;
+    font-weight: bold;
+}
+.char2{
+	padding-top:20px;
+	  margin-left:20px;
+	  font-family:Helvetica;
+	  color:rgb(172,180,190);
+	  font-size: 23px;
+	font-weight: bold;
+}
+.text1{
+	  margin-top:20px;
+	  margin-left:20px;
+}
+.text2{
+	width: 450px;
+	height: 50px;
+    border-radius:5px;
+	
+}
+.sub1{
+		width: 88px;
+	height: 42px;
+	 margin-left:370px;
+	margin-top:40px;
+}
+.sub2{
+	width: 84px;
+	height: 43px;
+	background-color:rgb(66,138,202);
+	 color:white;
+	 border-radius:10px;
+}
+.sub2:HOVER{
+	background-color:green;
+	
+}
+.sub3{
+	width: 88px;
+	height: 42px;
+   position: absolute;
+     right:700px;
+     bottom: 43px;
+}
+      
+.errorMessage{
+	    
+        color:red;
+        list-style-type:none;
+        margin-left:850px;
+        border:1px solid orange;
+        padding:5px;
+        width:200px;
+        text-align: center;
+      }

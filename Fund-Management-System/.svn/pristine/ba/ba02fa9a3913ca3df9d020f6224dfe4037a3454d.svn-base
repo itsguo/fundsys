@@ -1,0 +1,14 @@
+package edu.fjut.fundsys.dao;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.FundTransInfo;
+
+public class FundTransInfoDaoImpl extends HibernateDaoSupport implements FundTransInfoDao {
+
+	@Override
+	public void applyFund(FundTransInfo fundTransInfo) {
+	   this.getHibernateTemplate().save(fundTransInfo);
+	}
+
+}

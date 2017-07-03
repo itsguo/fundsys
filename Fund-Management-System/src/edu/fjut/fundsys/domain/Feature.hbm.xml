@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+	<class name="Feature" table="feature">
+
+		<id name="featureId" type="int" column="feature_id" >
+			<generator class="native"></generator> <!-- 主键生成策略 -->
+		</id>
+
+		<property name="featureTitle" type="string" length="5" column="feature_title"></property>
+		<property name="featureDescribe" type="string" length="20" column="feature_describe"></property>
+		<property name="featureInfo" type="string" length="20" column="feature_info"></property>
+		<property name="featureInfo2" type="string" length="20" column="feature_info2"></property>
+	</class>
+
+</hibernate-mapping>

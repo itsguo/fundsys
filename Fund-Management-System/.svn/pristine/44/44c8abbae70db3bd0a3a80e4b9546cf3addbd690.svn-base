@@ -1,0 +1,7 @@
+package edu.fjut.fundsys.service;
+
+import edu.fjut.fundsys.domain.FundTransInfo;
+
+public interface FundTransInfoService {
+	 void applyFund(FundTransInfo fundTransInfo);
+}

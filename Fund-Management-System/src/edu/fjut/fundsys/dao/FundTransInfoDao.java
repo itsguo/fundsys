@@ -1,0 +1,39 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.domain.RateRecord;
+import edu.fjut.fundsys.helper.CLientUserQueryhelper;
+import edu.fjut.fundsys.helper.FundTransQueryHelper;
+
+public interface FundTransInfoDao {
+	List<FundTransInfo> loadAll();
+
+	void applyFund(FundTransInfo fundTransInfo);
+
+	void ransomFund(FundTransInfo fundTransInfo);
+
+	void yestodayEarn();
+
+	List<RateRecord> rateRecords();
+
+	List<RateRecord> rateRecords(Integer fundNo);
+
+	void saveRateRecord(RateRecord rateRecord);
+
+	void deleteRateRecord(Integer fundNo);
+
+	List<FundHold> loadFundHoldById(String ClientNo);
+
+	Map<String, Object> detailFundHold(Integer hid);
+
+	// ×éºÏ²éÑ¯
+	int totalTransInfo(FundTransQueryHelper helper);
+
+	List<FundTransInfo> allTransInfos(FundTransQueryHelper helper, int beginIdx);
+
+}

@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+encoding//src/edu/fjut/fundsys/filter/AdminLoginFilter.java=UTF-8
+encoding//src/edu/fjut/fundsys/jwt/Jwt.java=UTF-8
+encoding//src/edu/fjut/fundsys/jwt/TokenState.java=UTF-8

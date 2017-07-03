@@ -1,0 +1,56 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.exception.DataAccessException;
+
+public class AdminUserDaoImpl extends HibernateDaoSupport implements AdminUserDao {
+
+	@Override
+	public void checkUser(AdminUser user) {
+		
+	AdminUser adminUser=(AdminUser) this.getHibernateTemplate().get(AdminUser.class,user.getUserNo());
+		
+		if(adminUser==null) {throw new DataAccessException("用户不存在"); };
+	    if(!adminUser.getUserPwd().equals(user.getUserPwd())){throw new DataAccessException("用户存在,但密码错误");}
+	  
+	}
+
+	@Override
+	public void fundAdd(Fund fund) {
+		try {
+			this.getHibernateTemplate().save(fund);
+		} catch (Exception e) {
+			throw new DataAccessException("基金名已经存在");
+		}
+		
+	}
+
+	@Override
+	public List<Fund> fundList() {
+	 return	this.getHibernateTemplate().find("from Fund f order by f.FundNo desc");
+	}
+
+	@Override
+	public Fund getFundById(Integer FundNo) {
+	    return (Fund) this.getHibernateTemplate().get(Fund.class, FundNo);
+	}
+
+	@Override
+	public void updateFund(Fund fund) {
+		this.getHibernateTemplate().update(fund);
+	
+	}
+
+	@Override
+	public void deleteFund(Integer fundNo) {
+		 Fund fund=this.getFundById(fundNo);
+		 this.getHibernateTemplate().delete(fund);
+		
+	}
+
+}

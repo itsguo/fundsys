@@ -1,0 +1,15 @@
+package edu.fjut.fundsys.service;
+
+import edu.fjut.fundsys.domain.ClientUser;
+
+public interface ClientUserService {
+	void checkUser(String no, String pwd);
+
+	void addClientUser(ClientUser clientUser);
+
+	ClientUser getClientUserById(String clientUserId);
+
+	void updateClientUser(ClientUser clientUser);
+	
+	void modifyClientUserPwd(String clientUserId,String pwd);
+}

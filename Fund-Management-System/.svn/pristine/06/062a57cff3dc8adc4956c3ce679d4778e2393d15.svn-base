@@ -1,0 +1,128 @@
+package edu.fjut.fundsys.action;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.exception.ApplicationException;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.service.ClientUserService;
+
+public class ClientUserTransAction extends BaseAction {
+	private ClientUser clientUser;
+	
+	private int resultcode;
+	private String message;
+	private String token;
+	private Map<String, Object> data = null;
+	private ClientUserService clientUserService;
+
+	
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public void setResultcode(int resultcode) {
+		this.resultcode = resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public void setData(Map<String, Object> data) {
+		this.data = data;
+	}
+
+	public ClientUserService getClientUserService() {
+		return clientUserService;
+	}
+
+	public void setClientUserService(ClientUserService clientUserService) {
+		this.clientUserService = clientUserService;
+	}
+
+	public String saveBalanceClientUser() {
+		/*
+		 * clientUser.ClientId
+		 * clientUser.ClientName 
+		 * clientUser.ClientPwd 
+		 * clientUser.Sex
+		 * clientUser.Phone 
+		 * clientUser.Address 
+		 * clientUser.Email
+		 * clientUser.Balance=10000
+		 * Active=true
+		 * clientCheckCode用户回执验证码
+		 */
+		data = new HashMap<String, Object>();
+		try {
+			data.put("", "");
+			resultcode = 0;
+			message = "用户密码修改成功";
+		} catch (ApplicationException e) {
+			data.put("", "");
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "saveBalance_ClientUser";
+	}
+
+	public String getBalanceClientUser() {
+		data = new HashMap<String, Object>();
+		try {
+			data.put("", "");
+			resultcode = 0;
+			message = "用户密码修改成功";
+		} catch (ApplicationException e) {
+			data.put("", "");
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "getBalance_ClientUser";
+	}
+
+	public String transBalanceClientUser() {
+		data = new HashMap<String, Object>();
+		try {
+			data.put("", "");
+			resultcode = 0;
+			message = "用户密码修改成功";
+		} catch (ApplicationException e) {
+			data.put("", "");
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "transBalance_ClientUser";
+	}
+
+	public String loadBalanceClientUser() {
+		data = new HashMap<String, Object>();
+		try {
+			data.put("", "");
+			resultcode = 0;
+			message = "用户密码修改成功";
+		} catch (DataAccessException e) {
+			data.put("", "");
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "loadBalance_ClientUser";
+	}
+}

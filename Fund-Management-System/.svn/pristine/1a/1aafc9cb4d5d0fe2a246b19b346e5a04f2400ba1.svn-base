@@ -1,0 +1,16 @@
+package edu.fjut.fundsys.service;
+
+import java.util.List;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.Fund;
+
+public interface AdminUserService {
+	   void checkUser(AdminUser user);
+	   void fundAdd(Fund fund);
+	   List<Fund> fundList();
+	   Fund getFundById(Integer FundNo);
+	   void updateFund(Fund fund);
+	   void deleteFund(Integer fundNo);
+	   void batchDeleteFund(String fundNo) ;
+}

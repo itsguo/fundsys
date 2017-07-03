@@ -1,0 +1,42 @@
+package edu.fjut.fundsys.domain;
+
+public class FundHold extends ValueObject {
+    private Integer HID=100000;
+    private Double price;
+    private ClientUser clientUser;
+    private Fund fund;
+	public Integer getHID() {
+		return HID;
+	}
+	public void setHID(Integer hID) {
+		HID = hID;
+	}
+    
+	public Double getPrice() {
+		return price;
+	}
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+	public ClientUser getClientUser() {
+		return clientUser;
+	}
+	public void setClientUser(ClientUser clientUser) {
+		this.clientUser = clientUser;
+	}
+	public Fund getFund() {
+		return fund;
+	}
+	public void setFund(Fund fund) {
+		this.fund = fund;
+	}
+	@Override
+	public String toString() {
+		return "FundHold [HID=" + HID + ", price=" + price + ", clientUser="
+				+ clientUser + ", fund=" + fund + "]";
+	}
+    
+    
+
+    
+}

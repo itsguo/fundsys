@@ -1,0 +1,19 @@
+package edu.fjut.fundsys.service;
+
+import edu.fjut.fundsys.dao.AdminUserLoginDao;
+import edu.fjut.fundsys.domain.AdminUser;
+
+public class AdminUserLoginServiceImpl implements AdminUserLoginService{
+    private AdminUserLoginDao adminuserlogindao;
+    
+	public void setAdminuserlogindao(AdminUserLoginDao adminuserlogindao) {
+		this.adminuserlogindao = adminuserlogindao;
+	}
+
+	@Override
+	public Boolean checkUser(AdminUser user) {
+		return adminuserlogindao.checkUser(user);
+		
+	}
+
+}

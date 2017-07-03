@@ -1,0 +1,192 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import org.hibernate.Query;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.Feature;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.domain.FundType;
+import edu.fjut.fundsys.exception.DataAccessException;
+
+public class AdminUserDaoImpl extends HibernateDaoSupport implements
+		AdminUserDao {
+
+	/**
+	 * 检测用户是否存在
+	 * 检测用户名和密码是否正确
+	 */
+	@Override
+	public void checkUser(AdminUser user) {
+
+		AdminUser adminUser = (AdminUser) this.getHibernateTemplate().get(
+				AdminUser.class, user.getUserNo());
+
+		if (adminUser == null) {
+			throw new DataAccessException("用户不存在");
+		}
+		;
+		if (!adminUser.getUserPwd().equals(user.getUserPwd())) {
+			throw new DataAccessException("用户存在,但密码错误");
+		}
+
+	}
+   /**
+    * 增加基金
+    */
+	@Override
+	public void fundAdd(Fund fund) {
+		try {
+			this.getHibernateTemplate().save(fund);
+		} catch (Exception e) {
+			throw new DataAccessException("基金名已经存在");
+		}
+
+	}
+  /**
+   * 基金列表
+   */
+	@Override
+	public List<Fund> fundList(Integer fundPageNo) {
+		Query query=this.getHibernateTemplate().getSessionFactory().openSession().createQuery("from Fund");
+        query.setFirstResult((fundPageNo-1) *3);  
+        query.setMaxResults(3);  
+        return query.list();
+	}
+
+   /**
+    * 根据ID号查找基金
+    */
+	@Override
+	public Fund getFundById(Integer FundNo) {
+		return (Fund) this.getHibernateTemplate().get(Fund.class, FundNo);
+	}
+    /**
+     * 更新基金
+     */
+	@Override
+	public void updateFund(Fund fund) {
+		Fund newFund = this.getFundById(fund.getFundNo());
+		newFund.setFundName(fund.getFundName());
+		newFund.setFundDescribe(fund.getFundDescribe());
+		newFund.setFundStatus(fund.getFundStatus());
+		newFund.setRate(fund.getRate());
+		this.getHibernateTemplate().update(newFund);
+	}
+    /**
+     * 删除基金
+     */
+	@Override
+	public void deleteFund(Integer fundNo) {
+		Fund fund = this.getFundById(fundNo);
+		this.getHibernateTemplate().delete(fund);
+
+	}
+    /**
+     * 批量删除基金
+     */
+	@Override
+	public void batchDeleteFund(List<Integer> fundNoList) {
+		for (Integer integer : fundNoList) {
+			Fund fund = this.getFundById(integer);
+			this.getHibernateTemplate().delete(fund);
+		}
+
+	}
+	/**
+	 * 获取客户信息列表
+	 */
+	@Override
+	public List<ClientUser> clientList() {
+		return this.getHibernateTemplate().find(
+				"from ClientUser c order by c.ClientId desc");
+	}
+
+
+	/**
+	 * 冻结/解冻客户
+	 */
+	public void frezonOrThawClient(String clientId, String active) {
+	   ClientUser clientUser=(ClientUser) this.getHibernateTemplate().get(ClientUser.class, clientId);
+	   if("true".equals(active)){
+		   clientUser.setActive(true);
+		   this.getHibernateTemplate().update(clientUser);
+	   }
+	   else {
+		   clientUser.setActive(false);
+		   this.getHibernateTemplate().update(clientUser); 
+	   }
+		
+	}
+	/**
+	 * 添加广告
+	 */
+	public void featureAdd(Feature feature) {
+		 List<Feature> features=this.features();
+		 Integer m=features.size();
+		 if(m>=3){throw new DataAccessException("当前广告表以有3条，请删除1条来添加"); }
+		 else this.getHibernateTemplate().save(feature);
+		
+	}
+	/**
+	 * 查看广告列表
+	 */
+	@Override
+	public List<Feature> features() {
+	    return this.getHibernateTemplate().find("from Feature");
+	}
+	/**
+	 * 删除广告
+	 */
+	@Override
+	public void deleteFeature(Integer featureId) {
+	    Feature feature=this.findFeatureById(featureId);
+		this.getHibernateTemplate().delete(feature);
+	}
+	/**
+	 * 修改广告
+	 */
+	public void updateFeature(Feature feature) {
+		 this.getHibernateTemplate().update(feature);
+		 
+	}
+	/**
+	 * 根据Id查找广告
+	 */
+	@Override
+	public Feature findFeatureById(Integer featureId) {
+	   return (Feature) this.getHibernateTemplate().get(Feature.class,featureId);
+	}
+   /**
+    * 基金列表条数
+    */
+	public Integer fundListSize() {
+	   return this.getHibernateTemplate().find("from Fund").size();
+	}
+/**
+ * 获取基金类型列表
+ */
+public List<FundType> fundTypes() {
+   return this.getHibernateTemplate().find("from FundType");
+}
+/**
+ * 根据基金类型获取基金
+ */
+public List<Fund> fundByType(Integer typeId) {
+	 return this.getHibernateTemplate().getSessionFactory().openSession().createQuery("from Fund where fundType.fundTypeId=?").setParameter(0, typeId).list();
+	 
+}
+/**
+ * 增加基金类型
+ */
+public void fundTypeAdd(FundType fundType) {
+	 this.getHibernateTemplate().save(fundType);
+	
+}
+
+	
+
+}

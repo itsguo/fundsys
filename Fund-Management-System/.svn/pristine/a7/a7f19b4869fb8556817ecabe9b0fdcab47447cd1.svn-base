@@ -1,0 +1,7 @@
+package edu.fjut.fundsys.dao;
+
+import edu.fjut.fundsys.domain.FundTransInfo;
+
+public interface FundTransInfoDao {
+      void applyFund(FundTransInfo fundTransInfo);
+}

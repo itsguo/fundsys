@@ -1,0 +1,21 @@
+package edu.fjut.fundsys.dao;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.AdminUser;
+
+
+public class AdminUserLoginDaoImpl extends HibernateDaoSupport implements AdminUserLoginDao{
+
+	@Override
+	public Boolean checkUser(AdminUser user) {
+		
+	AdminUser adminUser=(AdminUser) this.getHibernateTemplate().get(AdminUser.class,user.getUserNo());
+		
+		if(adminUser==null)
+			 return false;
+		
+		else return true;
+	}
+
+}

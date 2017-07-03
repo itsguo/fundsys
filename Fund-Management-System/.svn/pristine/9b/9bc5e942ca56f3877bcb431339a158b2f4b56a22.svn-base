@@ -1,0 +1,33 @@
+package edu.fjut.fundsys.dao;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundTransInfo;
+
+public class FundTransInfoDaoImpl extends HibernateDaoSupport implements FundTransInfoDao {
+
+	/**
+	 * 申购dao
+	 * 
+	 */
+	public void applyFund(FundTransInfo fundTransInfo) {
+	   this.getHibernateTemplate().save(fundTransInfo);
+	 //先查询持仓表中该申购记录中该客户是否拥有该基金产品
+      FundHold fundHold=(FundHold) this.getHibernateTemplate().getSessionFactory().openSession().createQuery("from FundHold f where f.clientUser.ClientId=? and f.fund.FundNo=?").setParameter(0, fundTransInfo.getClientUser().getClientId()).setParameter(1, fundTransInfo.getFund().getFundNo()).uniqueResult() ;
+	 //如果没有，就添加一条持仓记录
+      if(fundHold==null){FundHold newhold=new FundHold();
+	        newhold.setPrice(fundTransInfo.getPrice());
+	        newhold.setClientUser(fundTransInfo.getClientUser());
+	        newhold.setFund(fundTransInfo.getFund());
+	        this.getHibernateTemplate().save(newhold);
+	  }
+      //如果有，就更新该客户拥有的份数
+	  else{
+		  Double newPrice=fundHold.getPrice()+fundTransInfo.getPrice();
+		  fundHold.setPrice(newPrice);
+          this.getHibernateTemplate().update(fundHold);		  
+	  }
+	}
+
+}

@@ -1,0 +1,7 @@
+package edu.fjut.fundsys.dao;
+
+import edu.fjut.fundsys.domain.AdminUser;
+
+public interface AdminUserLoginDao {
+	  Boolean checkUser(AdminUser user);
+}

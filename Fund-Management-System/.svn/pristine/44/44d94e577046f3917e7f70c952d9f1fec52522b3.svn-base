@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+	<class name="Fund" table="FUND">
+
+		<id name="FundNo" type="int" column="FUND_NO" >
+			<generator class="native"></generator> <!-- 主键生成策略 -->
+		</id>
+
+		<property name="FundName" type="string" length="40" column="FUND_NAME" not-null="true"></property>
+		<property name="FundPrice" type="double" column="PRICE" not-null="true"></property>
+		<property name="FundDescribe" type="string" length="100" column="DESCRIPTION"></property>
+		<property name="FundStatus" type="string" length="1" column="STATUS"></property>
+		<property name="FundCreateDate" column="CREATED_DATE"></property>
+
+
+	</class>
+
+</hibernate-mapping>

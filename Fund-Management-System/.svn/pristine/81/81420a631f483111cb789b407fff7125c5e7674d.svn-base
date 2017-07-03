@@ -1,0 +1,31 @@
+package edu.fjut.fundsys.domain;
+
+import org.apache.struts2.json.annotations.JSON;
+
+public class RateRecord extends ValueObject {
+   private Integer recordNo=1;
+   private Double rate;
+   private Fund fund;
+public Integer getRecordNo() {
+	return recordNo;
+}
+public void setRecordNo(Integer recordNo) {
+	this.recordNo = recordNo;
+}
+public Double getRate() {
+	return rate;
+}
+public void setRate(Double rate) {
+	this.rate = rate;
+}
+  @JSON(serialize=false)
+public Fund getFund() {
+	return fund;
+}
+public void setFund(Fund fund) {
+	this.fund = fund;
+}
+   
+   
+   
+}

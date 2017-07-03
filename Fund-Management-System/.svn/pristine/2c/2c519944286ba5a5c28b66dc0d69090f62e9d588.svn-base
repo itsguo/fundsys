@@ -1,0 +1,74 @@
+package edu.fjut.fundsys.domain;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class FundTransInfo extends ValueObject {
+	private Integer transId;
+	private String transType;
+	private Date createDate;
+	private Integer amount;
+	private Integer price;
+
+	private ClientUser clientUser;
+	private Fund fund;
+
+	public Integer getTransId() {
+		return transId;
+	}
+
+	public void setTransId(Integer transId) {
+		this.transId = transId;
+	}
+
+	public String getTransType() {
+		return transType;
+	}
+
+	public void setTransType(String transType) {
+		this.transType = transType;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		Date date=new Date();
+	/*	SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");*/
+		this.createDate = date;
+	}
+
+	public Integer getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
+
+	public Integer getPrice() {
+		return price;
+	}
+
+	public void setPrice(Integer price) {
+		this.price = price;
+	}
+
+	public ClientUser getClientUser() {
+		return clientUser;
+	}
+
+	public void setClientUser(ClientUser clientUser) {
+		this.clientUser = clientUser;
+	}
+
+	public Fund getFund() {
+		return fund;
+	}
+
+	public void setFund(Fund fund) {
+		this.fund = fund;
+	}
+
+}

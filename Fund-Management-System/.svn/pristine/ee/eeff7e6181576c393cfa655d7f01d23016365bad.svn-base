@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd" [
+<!ENTITY contextInclude SYSTEM "org/springframework/web/portlet/context/WEB-INF/contextInclude.xml">
+]>
+
+<beans>
+
+    <!-- Spring提供了一个数据源，类似连接池的功能 -->
+    <bean id="dataSource"  class="org.springframework.jdbc.datasource.DriverManagerDataSource">    
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />  
+        <property name="url" value="jdbc:mysql://localhost:3306/funddb" />  
+        <property name="username" value="root" />  
+        <property name="password" value="123" />  
+    </bean>
+    
+    <!-- hibernate session factory -->
+    <bean id="sessionFactory"
+		  class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>	
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQL5Dialect
+				</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>				
+			</props>
+		</property>
+		<property name="mappingResources">
+		   <list>
+		      <value>/edu/fjut/fundsys/domain/AdminUser.hbm.xml</value>
+		      <value>/edu/fjut/fundsys/domain/ClientUser.hbm.xml</value>
+		      <value>/edu/fjut/fundsys/domain/Fund.hbm.xml</value>
+		      <value>/edu/fjut/fundsys/domain/FundTransInfo.hbm.xml</value>
+		   </list>
+		</property>
+    </bean>   
+    <!-- 操作员bean --> 
+     <bean id="AdminUserDao" class="edu.fjut.fundsys.dao.AdminUserDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>    
+    
+    <bean id="AdminUserService" class="edu.fjut.fundsys.service.AdminUserServiceImpl">
+        <property name="adminuserdao" ref="AdminUserDao"></property>
+    </bean>  
+    
+    <bean id="AdminUserAction" class="edu.fjut.fundsys.action.AdminUserAction" scope="prototype">
+        <property name="adminUserService" ref="AdminUserService"></property>
+    </bean> 
+    
+    <!-- 用户bean --> 
+       <bean id="ClientUserDao" class="edu.fjut.fundsys.dao.ClientUserDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>    
+    
+    <bean id="ClientUserService" class="edu.fjut.fundsys.service.ClientUserServiceImpl">
+        <property name="clientUserDao" ref="ClientUserDao"></property>
+    </bean>  
+    
+    <bean id="ClientUserAction" class="edu.fjut.fundsys.action.ClientUserAction" scope="prototype">
+        <property name="clientUserService" ref="ClientUserService"></property>
+    </bean>   
+    
+    <!-- 基金交易信息记录bean -->   
+     <bean id="FundTransInfoDao" class="edu.fjut.fundsys.dao.FundTransInfoDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>    
+    
+    <bean id="FundTransInfoService" class="edu.fjut.fundsys.service.FundTransInfoServiceImpl">
+        <property name="fundTransInfoDao" ref="FundTransInfoDao"></property>
+    </bean>  
+    
+    <bean id="FundTransInfoAction" class="edu.fjut.fundsys.action.FundTransInfoAction" scope="prototype">
+        <property name="fundTransInfoService" ref="FundTransInfoService"></property>
+    </bean>   
+</beans>

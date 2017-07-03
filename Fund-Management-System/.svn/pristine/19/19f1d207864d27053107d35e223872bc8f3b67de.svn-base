@@ -1,0 +1,62 @@
+create database funddb;
+use funddb;
+create table FUNDSYS_USERS(
+   user_no    char(6) primary key,
+   user_pwd   char(6) not null
+);
+insert FUNDSYS_USERS values("admin","123");
+
+create table CLIENT(
+ CLIENT_ID CHAR(18) primary key,
+ CLIENT_NAME VARCHAR (30) not null,
+ CLIENT_PWD VARCHAR(16) NOT NULL,
+ SEX CHAR(1),
+ PHONE VARCHAR (20),
+ ADDRESS VARCHAR (20),
+ EMAIL VARCHAR (50),
+ BALANCE DECIMAL(8,2),
+ ACTIVE tinyint(1) DEFAULT '1'
+);
+
+
+
+create table FUND(
+   FUND_NO int  primary key auto_increment,
+   FUND_NAME VARCHAR(40) unique,
+   PRICE DECIMAL(9,2) not null,
+   DESCRIPTION VARCHAR(100),
+   STATUS Char(3) not null,
+   CREATED_DATE DATETIME not null,
+   RATE DECIMAL(3,2) not null
+)AUTO_INCREMENT=100;
+
+
+create table CILENT_TRANSINFO(
+   TRANS_ID INT primary key auto_increment,
+   TRANS_TYPE CHAR(2) not null,
+   TRANS_PRICE DECIMAL(8,2) not null,
+   CLIENT_ID CHAR(18) not null,
+   TARGET_ID CHAR(18) not null,
+   CREATE_DATE DATETIME not null,
+   constraint FK_CLIENT_ID FOREIGN KEY(CLIENT_ID) references CLIENT(CLIENT_ID)
+)AUTO_INCREMENT=10000;
+
+create table FUND_TRANSINFO(
+   TRANS_ID INT primary key auto_increment,
+   TRANS_TYPE CHAR(2) not null,
+   CLIENT_ID CHAR(18) not null,
+   FUND_NO INT not null,
+   CREATE_DATE DATETIME not null,
+   PRICE  DECIMAL(8,2) not null,
+  constraint FK_CLIENT_ID2 FOREIGN KEY(CLIENT_ID) references CLIENT(CLIENT_ID),
+  constraint FK_FUND_NO FOREIGN KEY(FUND_NO) references FUND(FUND_NO)
+)AUTO_INCREMENT=10000;
+
+create table FUND_HOLDING(
+   HID INT primary key auto_increment,
+   CLIENT_ID CHAR(18) not null,
+   FUND_NO INT not null,
+   PRICE  DECIMAL(8,2) not null,
+ constraint FK_CLIENT_ID3 FOREIGN KEY(CLIENT_ID) references CLIENT(CLIENT_ID),
+ constraint FK_FUND_NO2 FOREIGN KEY(FUND_NO) references FUND(FUND_NO)
+);

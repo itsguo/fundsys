@@ -1,0 +1,67 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.exception.DataAccessException;
+
+public class ClientUserDaoImpl extends HibernateDaoSupport implements
+		ClientUserDao {
+
+	@Override
+	public void checkUser(String no, String pwd) {
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, no);
+		if (clientUser == null) {
+			throw new DataAccessException("用户不存在");
+		}
+		if (!clientUser.getClientPwd().equals(pwd)) {
+			throw new DataAccessException("用户存在,但密码不正确");
+		}
+	}
+
+	@Override
+	public void addclientUser(ClientUser clientUser) {
+		try {
+			this.getHibernateTemplate().save(clientUser);
+		} catch (Exception e) {
+			throw new DataAccessException("用户名已经存在");
+		}
+
+	}
+
+	@Override
+	public ClientUser getClientUserById(String clientUserId) {
+		return (ClientUser) this.getHibernateTemplate().get(ClientUser.class,
+				clientUserId);
+	}
+
+	@Override
+	public void updateClientUser(ClientUser clientUser) {
+		this.getHibernateTemplate().update(clientUser);
+	}
+
+	@Override
+	public void modifyClientUserPwd(String clientUserId, String pwd) {
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, clientUserId);
+		if (clientUser == null) {
+			throw new DataAccessException("用户不存在,输入有误");
+		}
+		clientUser.setClientPwd(pwd);
+		this.updateClientUser(clientUser);
+	}
+
+	@Override
+	public List<ClientUserTrans> clientUserFindAll(String clientUserId) {
+		return this.getHibernateTemplate().find("from ClientUserTrans c order by c.transId desc");
+	}
+
+	@Override
+	public void addClientUserTrans(ClientUserTrans clientUserTrans) {
+		this.getHibernateTemplate().save(clientUserTrans);
+	}
+}

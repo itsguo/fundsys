@@ -1,0 +1,68 @@
+create database funddb;
+use funddb;
+create table FUNDSYS_USERS(
+   user_no    char(6) primary key,
+   user_pwd   char(6) not null,
+   user_name  varchar(30) not null
+);
+insert FUNDSYS_USERS values("admin","123","admin");
+
+create table FUND(
+   FUND_NO INT primary key,
+   FUND_NAME VARCHAR (40) unique,
+   PRICE DECIMAL(6,2) not null,
+   DESCRIPTION VARCHAR(100),
+   STATUS Char(1) not null,
+   CREATED_DATE DATE not null
+);
+
+create table CLIENT(
+ ID_CARD_NO CHAR(18) primary key,
+ CLIENT_NAME VARCHAR (30) not null,
+ SEX CHAR(1),
+ PHONE VARCHAR (20),
+ ADDRESS VARCHAR (20),
+ EMAIL VARCHAR (50),
+ HOBBY VARCHAR (50),
+ CREATED_DATE DATETIME not null
+);
+
+create table FINANCIAL_ACCOUNT(
+   ACC_NO INT primary key auto_increment,
+   ACC_PWD CHAR(6) not null,
+   ACC_AMOUNT DECIMAL(12,2) not null,
+   ACC_STATUS CHAR(1) not null,
+   IDCARD_NO CHAR(18) not null,
+   CREATE_DATE DATETIME not null,
+ constraint FK_IDCARD_NO FOREIGN KEY(IDCARD_NO) references CLIENT(ID_CARD_NO)
+);
+
+create table FINANCIAL_ACCOUNT_TRANSINFO(
+   TRANS_ID INT primary key auto_increment,
+   TRANS_TYPE CHAR(1) not null,
+   TRANS_AMOUNT INT not null,
+   ACC_NO INT not null,
+   CREATE_DATE DATETIME not null,
+ constraint FK_ACC_NO FOREIGN KEY(ACC_NO) references FINANCIAL_ACCOUNT(ACC_NO)
+);
+
+create table FUND_TRANSINFO(
+   TRANS_ID INT primary key,
+   TRANS_TYPE CHAR(1) not null,
+   ACC_NO INT not null,
+   FUND_NO INT not null,
+   CREATE_DATE DATETIME not null,
+   AMOUNT INT not null,
+   PRICE INT not null,
+ constraint FK_ACC_NO2 FOREIGN KEY(ACC_NO) references FINANCIAL_ACCOUNT(ACC_NO),
+ constraint FK_FUND_NO FOREIGN KEY(FUND_NO) references FUND(FUND_NO)
+);
+
+create table FUND_HOLDING(
+   HID INT primary key auto_increment,
+   ACC_NO INT not null,
+   FUND_NO INT not null,
+   AMOUNT INT not null,
+ constraint FK_ACC_NO3 FOREIGN KEY(ACC_NO) references FINANCIAL_ACCOUNT(ACC_NO),
+ constraint FK_FUND_NO2 FOREIGN KEY(FUND_NO) references FUND(FUND_NO)
+);

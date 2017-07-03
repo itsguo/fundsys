@@ -1,0 +1,303 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.domain.RateRecord;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.helper.FundTransQueryHelper;
+
+public class FundTransInfoDaoImpl extends HibernateDaoSupport implements
+		FundTransInfoDao {
+
+	/**
+	 * 查看所有基金交易信息表
+	 */
+	public List<FundTransInfo> loadAll() {
+		return this.getHibernateTemplate().find("from FundTransInfo");
+	}
+
+	/**
+	 * 申购操作
+	 */
+	public void applyFund(FundTransInfo fundTransInfo) {
+		// 先查询到客户，查出其账户余额，判断客户是否被冻结
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, fundTransInfo.getClientUser().getClientId());
+		if (!clientUser.getActive()) {
+			throw new DataAccessException("该用户被冻结，不能购买");
+		}
+		Double Money = clientUser.getBalance();
+		if (Money < fundTransInfo.getAmount()) {
+			throw new DataAccessException("余额不足，购买失败");
+		}
+		// 以下情况是可以购买基金，进行一系列操作
+		// 进行基金交易表的存储
+		this.getHibernateTemplate().save(fundTransInfo);
+		// 进行客户表余额扣款
+		clientUser.setBalance(clientUser.getBalance()
+				- fundTransInfo.getAmount());
+		this.getHibernateTemplate().update(clientUser);
+		// 进行客户金钱交易表存储
+		ClientUserTrans clientUserTrans = new ClientUserTrans();
+		clientUserTrans.setTransType("申购");
+		clientUserTrans.setTargetId("-");
+		clientUserTrans.setTransPrice(fundTransInfo.getAmount());
+		clientUserTrans.setClientUser(clientUser);
+		this.getHibernateTemplate().save(clientUserTrans);
+		// 进行持仓表存储
+		// 先查询持仓表中该申购记录中该客户是否拥有该基金产品
+		FundHold fundHold = (FundHold) this
+				.getHibernateTemplate()
+				.getSessionFactory()
+				.openSession()
+				.createQuery(
+						"from FundHold f where f.clientUser.ClientId=? and f.fund.FundNo=?")
+				.setParameter(0, fundTransInfo.getClientUser().getClientId())
+				.setParameter(1, fundTransInfo.getFund().getFundNo())
+				.uniqueResult();
+		// 如果没有，就添加一条持仓记录
+		if (fundHold == null) {
+			FundHold newhold = new FundHold();
+			newhold.setAmount(fundTransInfo.getAmount());
+			newhold.setClientUser(fundTransInfo.getClientUser());
+			newhold.setFund(fundTransInfo.getFund());
+			this.getHibernateTemplate().save(newhold);
+		}
+		// 如果有，就更新该客户拥有的份数
+		else {
+			Double newPrice = fundHold.getAmount() + fundTransInfo.getAmount();
+			fundHold.setAmount(newPrice);
+			this.getHibernateTemplate().update(fundHold);
+		}
+	}
+
+	/**
+	 * 赎回操作
+	 */
+	public void ransomFund(FundTransInfo fundTransInfo) {
+		// 先查询到客户，查出其账户余额，判断客户是否被冻结
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, fundTransInfo.getClientUser().getClientId());
+		if (!clientUser.getActive()) {
+			throw new DataAccessException("该用户被冻结，不能赎回");
+		}
+		Double Money = clientUser.getBalance();
+		// 查询持仓表
+		FundHold fundHold = (FundHold) this
+				.getHibernateTemplate()
+				.getSessionFactory()
+				.openSession()
+				.createQuery(
+						"from FundHold f where f.clientUser.ClientId=? and f.fund.FundNo=?")
+				.setParameter(0, fundTransInfo.getClientUser().getClientId())
+				.setParameter(1, fundTransInfo.getFund().getFundNo())
+				.uniqueResult();
+		if (fundTransInfo.getAmount() <= fundHold.getAmount()) {
+			// 持仓表修改
+			fundHold.setAmount(fundHold.getAmount() - fundTransInfo.getAmount());
+			this.getHibernateTemplate().update(fundHold);
+			// 退钱到客户表
+			clientUser.setBalance(clientUser.getBalance()
+					+ fundTransInfo.getAmount());
+			this.getHibernateTemplate().update(clientUser);
+			// 进行客户金钱交易表存储
+			ClientUserTrans clientUserTrans = new ClientUserTrans();
+			clientUserTrans.setTransType("赎回");
+			clientUserTrans.setTargetId("-");
+			clientUserTrans.setTransPrice(fundTransInfo.getAmount());
+			clientUserTrans.setClientUser(clientUser);
+			this.getHibernateTemplate().save(clientUserTrans);
+			// 进行基金操作信息表存储
+			this.getHibernateTemplate().save(fundTransInfo);
+		} else {
+			throw new DataAccessException("赎回的钱大于您持仓的份数，赎回失败");
+		}
+
+	}
+
+	/**
+	 * 计算每个产品昨日收益,以及该用户拥有的每个基金产品的持仓总价 每个客户总盈利
+	 */
+	public void yestodayEarn() {
+		List<FundHold> fundHolds = this.getHibernateTemplate().find(
+				"from FundHold");
+		for (FundHold fundHold : fundHolds) {
+			ClientUser clientUser = (ClientUser) this.getHibernateTemplate()
+					.get(ClientUser.class,
+							fundHold.getClientUser().getClientId());
+			double rate = fundHold.getFund().getRate();
+			double yestoday = fundHold.getAmount() * rate / 365.0;
+			fundHold.setYestodayEarn(yestoday);
+			fundHold.setAmount(fundHold.getAmount() + yestoday);
+			this.getHibernateTemplate().update(fundHold);
+			if (clientUser.getTotolEarnings() == null) {
+				clientUser.setTotolEarnings(yestoday);
+			} else {
+				clientUser.setTotolEarnings(clientUser.getTotolEarnings()
+						+ yestoday);
+			}
+			this.getHibernateTemplate().update(clientUser);
+		}
+
+	}
+
+	/**
+	 * 得到最近30日某款基金产品利率变化
+	 */
+	@Override
+	public List<RateRecord> rateRecords() {
+		return this.getHibernateTemplate().find("from RateRecord");
+	}
+
+	/**
+	 * 得到某一个基金产品在利率变化表中的记录
+	 */
+	public List<RateRecord> rateRecords(Integer fundNo) {
+		return this.getHibernateTemplate().getSessionFactory().openSession()
+				.createQuery("from RateRecord r where r.fund.FundNo=?")
+				.setParameter(0, fundNo).list();
+	}
+
+	/**
+	 * 保存基金利率变化
+	 */
+	public void saveRateRecord(RateRecord rateRecord) {
+		this.getHibernateTemplate().save(rateRecord);
+
+	}
+
+	/**
+	 * 某一个基金产品在基金利率变化表中存放条数超过7条 删除其第一条
+	 */
+	public void deleteRateRecord(Integer fundNo) {
+		List<RateRecord> rateRecords = this.rateRecords(fundNo);
+		RateRecord rateRecord = rateRecords.get(0);
+		Integer i = rateRecord.getRecordNo();
+		RateRecord rateRecord2 = (RateRecord) this.getHibernateTemplate().get(
+				RateRecord.class, i);
+		this.getHibernateTemplate().delete(rateRecord2);
+
+	}
+
+	// 以下三个方法--组合查询基金交易记录(前后台都可以查看)
+	private DetachedCriteria getCriteriaByHelperOfFundTransInfo(
+			FundTransQueryHelper helper) {
+		DetachedCriteria criteria = DetachedCriteria
+				.forClass(FundTransInfo.class);
+		if (StringUtils.isNotEmpty(helper.getTransId())) {
+			criteria.add(Restrictions.eq("transId",
+					Integer.parseInt(helper.getTransId())));
+		}
+		if (StringUtils.isNotEmpty(helper.getTransType())) {
+			criteria.add(Restrictions.eq("transType", helper.getTransType()));
+		}
+		if (StringUtils.isNotEmpty(helper.getClientId())) {
+			criteria.createCriteria("clientUser").add(
+					Restrictions.eq("ClientId", helper.getClientId()));
+		}
+		if (StringUtils.isNotEmpty(helper.getFundNo())) {
+			criteria.createCriteria("fund").add(
+					Restrictions.eq("FundNo",
+							Integer.parseInt(helper.getFundNo())));
+		}
+		criteria.addOrder(Order.desc("transId"));
+		return criteria;
+	}
+
+	@Override
+	public int totalTransInfo(FundTransQueryHelper helper) {
+		DetachedCriteria detachedCriteria = this
+				.getCriteriaByHelperOfFundTransInfo(helper);
+		detachedCriteria.setProjection(Projections.rowCount());
+		Session session = this.getSession();
+		Transaction trans = session.beginTransaction();
+		int cnt = 0;
+		try {
+			Criteria criteria = detachedCriteria.getExecutableCriteria(session);
+			cnt = Integer.parseInt(criteria.list().get(0).toString());
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		} finally {
+			if (session.isOpen())
+				session.close();
+		}
+		return cnt;
+	}
+
+	@Override
+	public List<FundTransInfo> allTransInfos(FundTransQueryHelper helper,
+			int beginIdx) {
+		Session session = this.getSession();
+		Transaction trans = session.beginTransaction();
+		List<FundTransInfo> fundList = null;
+		int endIdx;
+		try {
+			DetachedCriteria detachedCriteria = this
+					.getCriteriaByHelperOfFundTransInfo(helper);
+			Criteria criteria = detachedCriteria.getExecutableCriteria(session);
+			if ((5 * beginIdx) < this.totalTransInfo(helper)
+					|| (5 * beginIdx) == this.totalTransInfo(helper)) {
+				endIdx = 5;
+			} else {
+				endIdx = this.totalTransInfo(helper) - 5 * (beginIdx - 1);
+			}
+			fundList = criteria.setFirstResult(5 * (beginIdx - 1))
+					.setMaxResults(endIdx).list();
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		} finally {
+			if (session.isOpen())
+				session.close();
+		}
+		return fundList;
+	}
+
+	/**
+	 * 根据客户Id获取持仓表
+	 */
+	public List<FundHold> loadFundHoldById(String ClientNo) {
+		return this.getHibernateTemplate().getSessionFactory().openSession()
+				.createQuery("from FundHold f where f.clientUser.ClientId=?")
+				.setParameter(0, ClientNo).list();
+
+	}
+
+	/**
+	 * 根据持仓ID号获取有关信息 持仓总价值，昨日收益，基金ID, 基金名称，基金类型，年转化率，成立日
+	 */
+	public Map<String, Object> detailFundHold(Integer hid) {
+		FundHold fundHold = (FundHold) this.getHibernateTemplate().get(
+				FundHold.class, hid);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("totolHold", fundHold.getAmount());
+		map.put("yestodayEarn", fundHold.getYestodayEarn());
+		map.put("fundId", fundHold.getFundId());
+		map.put("fundName", fundHold.getFundName());
+		map.put("fundType", fundHold.getFundTypeName());
+		map.put("fundRate", fundHold.getFund().getRate());
+		map.put("createDate", fundHold.getFund().getFundCreateDate());
+
+		return map;
+	}
+
+}

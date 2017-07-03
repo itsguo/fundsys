@@ -1,0 +1,55 @@
+package edu.fjut.fundsys.action;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.service.AdminUserLoginService;
+
+public class AdminUserLoginAction extends BaseAction {
+    private String userNo;
+    private String userPwd;
+    private AdminUserLoginService adminUserLoginService;
+    private int resultcode;
+    private String message;
+    
+    
+	public int getResultcode() {
+		return resultcode;
+	}
+	public void setResultcode(int resultcode) {
+		this.resultcode = resultcode;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public void setAdminUserLoginService(AdminUserLoginService adminUserLoginService) {
+		this.adminUserLoginService = adminUserLoginService;
+	}
+	public String getUserNo() {
+		return userNo;
+	}
+	public void setUserNo(String userNo) {
+		this.userNo = userNo;
+	}
+	public String getUserPwd() {
+		return userPwd;
+	}
+	public void setUserPwd(String userPwd) {
+		this.userPwd = userPwd;
+	}
+	public String adminLogin(){
+		AdminUser adminUser=new AdminUser();
+		adminUser.setUserNo(userNo);
+		adminUser.setUserPwd(userPwd);
+		if(adminUserLoginService.checkUser(adminUser)){
+			resultcode=0;
+			message="认证成功";
+		}
+		else {			
+			resultcode=0;
+		    message="认证失败";}
+		return "adminlogin";
+	}
+    
+}

@@ -1,0 +1,12 @@
+package edu.fjut.fundsys.dao;
+
+import edu.fjut.fundsys.domain.ClientUser;
+
+
+
+
+
+public interface ClientUserDao {
+	  Boolean checkUser(String no,String pwd);
+	  void addclientUser(ClientUser clientUser);
+}

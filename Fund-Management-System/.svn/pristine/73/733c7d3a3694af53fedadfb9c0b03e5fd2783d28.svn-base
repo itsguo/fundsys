@@ -1,0 +1,19 @@
+/**
+ * 
+ */
+package edu.fjut.fundsys.service;
+
+import edu.fjut.fundsys.domain.User;
+
+
+
+/**
+ * @author gjm
+ *
+ */
+public interface UserService {
+	
+	User checkUser(String userNo, String userPwd);
+    void saveUser(User user);
+    Boolean ajaxcheck(String userNo);
+}

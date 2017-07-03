@@ -1,0 +1,7 @@
+package edu.fjut.fundsys.service;
+
+public interface SetRateService {
+	void setRate(Integer fundPageNo);
+
+	void setRate();
+}

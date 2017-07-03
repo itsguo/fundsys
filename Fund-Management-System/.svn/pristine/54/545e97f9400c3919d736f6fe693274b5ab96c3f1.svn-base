@@ -1,0 +1,31 @@
+package edu.fjut.fundsys.dao;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.exception.DataAccessException;
+
+public class AdminUserDaoImpl extends HibernateDaoSupport implements AdminUserDao {
+
+	@Override
+	public Boolean checkUser(AdminUser user) {
+		
+	AdminUser adminUser=(AdminUser) this.getHibernateTemplate().get(AdminUser.class,user.getUserNo());
+		
+		if(adminUser==null)  return false;
+	    if(!adminUser.getUserPwd().equals(user.getUserPwd())){return false;}
+	    return true;
+	}
+
+	@Override
+	public void fundAdd(Fund fund) {
+		try {
+			this.getHibernateTemplate().save(fund);
+		} catch (Exception e) {
+			throw new DataAccessException("基金名已经存在");
+		}
+		
+	}
+
+}

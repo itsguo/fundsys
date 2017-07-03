@@ -1,0 +1,33 @@
+package edu.fjut.fundsys.service;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import edu.fjut.fundsys.dao.AdminUserDao;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.utils.RandomUtils;
+
+public class SetRateServiceImpl implements SetRateService {
+    private AdminUserDao adminUserDao;
+   
+
+
+	public void setAdminUserDao(AdminUserDao adminUserDao) {
+		this.adminUserDao = adminUserDao;
+	}
+
+
+
+	@Override
+	public void setRate(Integer fundPageNo) {
+		 List<Fund> fundlist=adminUserDao.fundList(fundPageNo);
+		 for (Fund fund : fundlist) { 
+			if(RandomUtils.getPlusOrMinus()){fund.setRate(fund.getRate()+RandomUtils.getChangeNum());}
+			else {fund.setRate(fund.getRate()-RandomUtils.getChangeNum());}
+			adminUserDao.updateFund(fund);			 
+		}
+
+	}
+
+}

@@ -1,0 +1,9 @@
+package edu.fjut.fundsys.dao;
+
+
+
+
+
+public interface ClientUserDao {
+	  Boolean checkUser(String no,String pwd);
+}

@@ -1,0 +1,71 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="/struts-tags" prefix="s"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+   
+    <title>基金柜台操作人员账号注册</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<link rel="stylesheet" type="text/css" href="<c:url value="/css/application.css"></c:url>">
+    <link rel="stylesheet" type="text/css" href="<c:url value="/css/register.css"></c:url>">  
+    <script type="text/javascript" src="../js/jquery-1.8.3.js"></script>  
+    <script type="text/javascript">
+    var flag;
+    function checkf() {
+        var pw1 = document.getElementById("pass1").value;
+        var pw2 = document.getElementById("pass2").value;
+        var no = document.getElementById("no").value;
+        var error=document.getElementById("error");
+        var agree=document.getElementById("agree");
+        if(flag=="NO"){return false;}
+           if(!agree.checked){error.innerHTML="请同意协议";return false;}
+           if(pw1.length>6){error.innerHTML="密码长度不大于6位";return false;}
+           if(no.length>6){error.innerHTML="账号长度不大于6位";return false;}
+           if(pw1!=pw2){error.innerHTML="两次密码不一样";return false;}
+          
+           else {  return true;};
+    };
+      
+    function checkno() {
+    	error.innerHTML="";
+		var no=$("input#no").val();
+		$.ajax({
+			url:'/FMS/security/checkno.do',
+			type:'GET',
+			data:"user.userNo="+no,
+			success:function(response){
+				if(response=="NO") {flag=response; error.innerHTML="该用户名已经存在";}
+				else flag="OK";
+			},
+			
+		});
+	};
+     
+    </script>
+  </head>
+  
+  <body id="loginbg">
+  <div id="login1">
+   <div id="login2"><font class="char1">基金柜台操作人员账号注册</font></div>
+    <div id="login3">
+    <br><br>
+	    <s:form namespace="/security"  action="register" method="post">
+	       <span class="text1"> <input type="text" name="user.userNo" id="no" class="text2" placeholder="请输入6位账号" onblur="checkno()"/></span> <br><br>
+	       <span class="text1"> <input type="password" id="pass1" name="user.userPwd" class="text2" placeholder="请输入6位密码" /></span><br><br>
+	       <span class="text1"> <input type="password" id="pass2" class="text2" placeholder="再次输入密码"/></span><br><br>
+	       <span class="text1"> <input type="text" name="user.userName" class="text2" placeholder="请输入姓名"/></span><br><br>  
+	       <span class="text1"> <input type="checkbox" id="agree"><a href="#">我接受《xxx协议》</a><br><br> </span>
+	     <span class="text1"> <input type="submit" id="submit" value="注册" class="sub2" onclick="return checkf();"/></span>	   
+   
+	    </s:form>
+    </div></div>
+           <span id="error"><s:actionerror/></span>
+   <div id="foot"> <%@ include file="/jsps/footer.jsp"%></div>
+</body>
+</html>

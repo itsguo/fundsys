@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+   <class name="User" table="FUNDSYS_USERS">
+      
+      <id name="userNo" type="string" column="user_no" length="6">
+         <generator class="assigned"></generator> <!-- 主键生成策略 -->
+      </id>
+      
+      <property name="userPwd" type="string" length="6" column="user_pwd" not-null="true"></property>
+      <property name="userName" type="string" column="user_name" length="30" not-null="true"></property>
+      
+   </class>
+
+</hibernate-mapping>

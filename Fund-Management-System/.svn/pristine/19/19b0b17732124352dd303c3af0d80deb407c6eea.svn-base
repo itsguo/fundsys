@@ -1,0 +1,176 @@
+package edu.fjut.fundsys.action;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.struts2.json.annotations.JSON;
+
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.domain.RateRecord;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.service.FundTransInfoService;
+import edu.fjut.fundsys.service.SetRateService;
+
+/**
+ * 基金交易Action
+ * 命名空间： /fundtrans
+ * @author Guo
+ * 基金申购操作
+ * 基金赎回赎回
+ * 模拟天数变化，计算昨日收益，客户总盈利
+ * 获得近7日某基金利率变化
+ */
+public class FundTransInfoAction extends BaseAction {
+	/*实体 */
+	private FundTransInfo fundTrans;
+	/* service */
+	private FundTransInfoService fundTransInfoService;
+	private SetRateService setRateService;
+	/* 返回json数据 */
+	private Map<String, Object> data = null;
+	private int resultcode;
+	private String message;
+	/* 基金交易信息表*/
+	private List<FundTransInfo> fundTransInfos;
+	/*基金产品利率变化信息表*/
+	private List<RateRecord> rateRecords;
+	/*基金Id号 */
+	private String fundId;
+	/*客户ID*/
+	private String clientNo;
+	/*持仓*/
+	private List<FundHold> fundHolds;
+	
+	
+
+
+
+
+	public void setClientNo(String clientNo) {
+		this.clientNo = clientNo;
+	}
+
+	public void setFundId(String fundId) {
+		this.fundId = fundId;
+	}
+
+	public void setSetRateService(SetRateService setRateService) {
+		this.setRateService = setRateService;
+	}
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+    
+	public void setFundTrans(FundTransInfo fundTrans) {
+		this.fundTrans = fundTrans;
+	}
+	@JSON(serialize=false)
+	public FundTransInfo getFundTrans() {
+		return fundTrans;
+	}
+
+	public void setFundTransInfoService(FundTransInfoService fundTransInfoService) {
+		this.fundTransInfoService = fundTransInfoService;
+	}
+	
+/**
+ * 申购基金
+ */
+	public String applyFund(){
+		//fundTrans.amount  fundTrans.clientUser.ClientId    fundTrans.fund.FundNo
+		data=new HashMap<String, Object>();
+		fundTrans.setTransType("申购");
+		try {
+			fundTransInfoService.applyFund(fundTrans);
+			data.put("TransType", "申购");
+			resultcode=0;
+			message="申购成功";
+		} catch (DataAccessException e) {
+			data.put("TransType", "申购");
+			resultcode=-1;
+			message=e.getMessage() ;
+		}
+		return "applyfund";
+	}
+/**
+ * 赎回基金
+ */
+	public String ransomFund(){
+		//fundTrans.amount  fundTrans.clientUser.ClientId    fundTrans.fund.FundNo	
+		data=new HashMap<String, Object>();
+		fundTrans.setTransType("赎回");
+		try {
+			fundTransInfoService.ransomFund(fundTrans);
+			data.put("TransType", "赎回");
+			resultcode=0;
+			message="赎回成功";
+		} catch (DataAccessException e) {
+			data.put("TransType", "赎回");
+			resultcode=-1;
+			message=e.getMessage();
+		}
+		return "ransomfund";
+	}
+/**
+ * 查看基金交易信息表
+ */
+	public String loadFundTranInfos(){
+		data=new HashMap<String, Object>();
+		fundTransInfos=fundTransInfoService.loadAll();
+        data.put("FundTranInfos", fundTransInfos);
+        data.put("size", fundTransInfos.size());
+    	resultcode=0;
+		message="读取成功"; 
+		return "loadall";
+	}
+/**
+ * 该方法模拟日期过了一天
+ * 计算持仓表昨日收益，持仓总价，以及每个客户总盈利	
+ * 计算每个产品昨日收益,以及该用户拥有的每个基金产品的持仓总价
+ * 
+ */
+	public String yestodayEarn(){
+		data=new HashMap<String, Object>();
+        fundTransInfoService.yestodayEarn();
+        data.put("whatHappen", "度过了一天");
+    	resultcode=0;
+		message="数据更新成功"; 
+		return "passAday";
+	}
+/**
+ * 获得近7日的利率变化
+ */
+  public String loadRateRecord(){
+	  //fundId
+		data=new HashMap<String, Object>();
+		rateRecords=fundTransInfoService.rateRecords(Integer.parseInt(fundId));
+		data.put("rateRecords", rateRecords);
+    	resultcode=0;
+		message="数据返回成功"; 
+	  return "raterecord";
+  }
+  /**
+   * 根据客户ID获取持仓表
+   */
+  public String loadClientHold(){
+	  //clientNo
+		data=new HashMap<String, Object>(); 
+	  fundHolds=fundTransInfoService.loadFundHoldById(clientNo);
+	  data.put("fundHolds", fundHolds);
+	  resultcode=0;
+	  message="返回成功";
+	  return "loadhold";
+  }
+
+}

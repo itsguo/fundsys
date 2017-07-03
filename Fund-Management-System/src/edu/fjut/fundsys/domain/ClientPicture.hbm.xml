@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+	<class name="ClientPicture" table="client_picture">
+
+		<id name="pictureId" type="int" column="picture_id" >
+			<generator class="native"></generator> <!-- 主键生成策略 -->
+		</id>
+ <property name="pictureOldname" type="string" length="255" column="picture_oldname" not-null="true"></property>
+ <property name="pictureNewname" type="string" length="255" column="picture_newname" not-null="true"></property>
+ <property name="clientId" type="string" length="18" column="CLIENT_ID" not-null="true"></property>
+	
+		
+		
+   </class>
+
+</hibernate-mapping>

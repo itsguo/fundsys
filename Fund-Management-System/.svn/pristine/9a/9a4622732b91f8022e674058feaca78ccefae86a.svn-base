@@ -1,0 +1,17 @@
+package edu.fjut.fundsys.utils;
+
+import java.io.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import java.io.*;
+public class TokenUtils {
+    private static String getToken(AdminUser adminUser){
+    	 Map<String,Object> claims = new HashMap<String, Object>();
+    	 claims.put("userno", adminUser.getUserNo());
+    	 claims.put("userpwd", adminUser.getUserPwd());
+    	 String s = Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, key).compact();
+    }
+}

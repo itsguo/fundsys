@@ -1,0 +1,378 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import antlr.collections.impl.IntRange;
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.Feature;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundType;
+import edu.fjut.fundsys.domain.RateRecord;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.helper.FundQueryHelper;
+
+public class AdminUserDaoImpl extends HibernateDaoSupport implements
+		AdminUserDao {
+
+	/**
+	 * 检测用户是否存在 检测用户名和密码是否正确
+	 */
+	@Override
+	public void checkUser(AdminUser user) {
+
+		AdminUser adminUser = (AdminUser) this.getHibernateTemplate().get(
+				AdminUser.class, user.getUserNo());
+
+		if (adminUser == null) {
+			throw new DataAccessException("用户不存在");
+		}
+		;
+		if (!adminUser.getUserPwd().equals(user.getUserPwd())) {
+			throw new DataAccessException("用户存在,但密码错误");
+		}
+
+	}
+
+	/**
+	 * 增加基金
+	 */
+	@Override
+	public void fundAdd(Fund fund) {
+		try {
+			this.getHibernateTemplate().save(fund);
+		} catch (Exception e) {
+			throw new DataAccessException("基金名已经存在");
+		}
+
+	}
+
+	/**
+	 * 基金列表
+	 */
+	@Override
+	public List<Fund> fundList(Integer fundPageNo) {
+		Query query = this.getHibernateTemplate().getSessionFactory()
+				.openSession().createQuery("from Fund");
+		query.setFirstResult((fundPageNo - 1) * 5);
+		query.setMaxResults(5);
+		return query.list();
+	}
+
+	/**
+	 * 基金列表 无页码
+	 */
+	public List<Fund> fundList() {
+		return this.getHibernateTemplate().find("from Fund");
+	}
+
+	/**
+	 * 根据ID号查找基金
+	 */
+	@Override
+	public Fund getFundById(Integer FundNo) {
+		Fund fund = (Fund) this.getHibernateTemplate().get(Fund.class, FundNo);
+		if (fund == null) {
+			throw new DataAccessException("不存在此基金");
+		}
+		return fund;
+	}
+
+	/**
+	 * 更新基金
+	 */
+	@Override
+	public void updateFund(Fund fund) {
+		Fund newFund = this.getFundById(fund.getFundNo());
+		newFund.setFundName(fund.getFundName());
+		newFund.setFundDescribe(fund.getFundDescribe());
+		newFund.setFundStatus(fund.getFundStatus());
+		newFund.setRate(fund.getRate());
+		this.getHibernateTemplate().update(newFund);
+	}
+
+	/**
+	 * 删除基金
+	 */
+	@Override
+	public void deleteFund(Integer fundNo) {
+		List<FundHold> fundHolds = this.loadFundHold();
+		for (FundHold fundHold : fundHolds) {
+			if (fundHold.getFundId().equals(fundNo)) {
+				throw new DataAccessException("当前有客户持有该产品，不能删除");
+			}
+		}
+		List<RateRecord> rateRecords = this.getHibernateTemplate()
+				.getSessionFactory().openSession()
+				.createQuery("from RateRecord r where r.fund.FundNo=?")
+				.setParameter(0, fundNo).list();
+		for (RateRecord rateRecord : rateRecords) {
+			this.getHibernateTemplate().delete(rateRecord);
+		}
+		Fund fund = this.getFundById(fundNo);
+		this.getHibernateTemplate().delete(fund);
+
+	}
+
+	/**
+	 * 批量删除基金
+	 */
+	@Override
+	public void batchDeleteFund(List<Integer> fundNoList) {
+		List<FundHold> fundHolds = this.loadFundHold();
+		for (FundHold fundHold : fundHolds) {
+			for (int i = 0; i < (fundNoList.size()); i++) {
+				if (fundHold.getFundId().equals(fundNoList.get(i))) {
+					throw new DataAccessException("当前有客户持有" + fundNoList.get(i)
+							+ "号基金，不能删除,请勾掉，重新删除");
+				}
+			}
+		}
+
+		for (int i = 0; i < (fundNoList.size()); i++) {
+			List<RateRecord> rateRecords = this.getHibernateTemplate()
+					.getSessionFactory().openSession()
+					.createQuery("from RateRecord r where r.fund.FundNo=?")
+					.setParameter(0, fundNoList.get(i)).list();
+			for (RateRecord rateRecord : rateRecords) {
+				this.getHibernateTemplate().delete(rateRecord);
+			}
+			Fund fund = this.getFundById(fundNoList.get(i));
+			this.getHibernateTemplate().delete(fund);
+
+		}
+
+	}
+
+	/**
+	 * 获取客户信息列表
+	 */
+	@Override
+	public List<ClientUser> clientList() {
+		return this.getHibernateTemplate().find(
+				"from ClientUser c order by c.ClientId desc");
+	}
+
+	/**
+	 * 冻结/解冻客户
+	 */
+	public void frezonOrThawClient(String clientId, String active) {
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, clientId);
+		if ("true".equals(active)) {
+			clientUser.setActive(true);
+			this.getHibernateTemplate().update(clientUser);
+		} else {
+			clientUser.setActive(false);
+			this.getHibernateTemplate().update(clientUser);
+		}
+
+	}
+
+	/**
+	 * 添加广告
+	 */
+	public void featureAdd(Feature feature) {
+		List<Feature> features = this.features();
+		Integer m = features.size();
+		if (m >= 3) {
+			throw new DataAccessException("当前广告表以有3条，请删除1条来添加");
+		} else
+			this.getHibernateTemplate().save(feature);
+
+	}
+
+	/**
+	 * 查看广告列表
+	 */
+	@Override
+	public List<Feature> features() {
+		return this.getHibernateTemplate().find("from Feature");
+	}
+
+	/**
+	 * 删除广告
+	 */
+	@Override
+	public void deleteFeature(Integer featureId) {
+		Feature feature = this.findFeatureById(featureId);
+		this.getHibernateTemplate().delete(feature);
+	}
+
+	/**
+	 * 修改广告
+	 */
+	public void updateFeature(Feature feature) {
+		this.getHibernateTemplate().update(feature);
+
+	}
+
+	/**
+	 * 根据Id查找广告
+	 */
+	@Override
+	public Feature findFeatureById(Integer featureId) {
+		return (Feature) this.getHibernateTemplate().get(Feature.class,
+				featureId);
+	}
+
+	/**
+	 * 基金列表条数
+	 */
+	public Integer fundListSize() {
+		return this.getHibernateTemplate().find("from Fund").size();
+	}
+
+	/**
+	 * 获取基金类型列表
+	 */
+	public List<FundType> fundTypes() {
+		return this.getHibernateTemplate().find("from FundType");
+	}
+
+	/**
+	 * 根据基金类型获取基金
+	 */
+	public List<Fund> fundByType(Integer typeId) {
+		return this.getHibernateTemplate().getSessionFactory().openSession()
+				.createQuery("from Fund where fundType.fundTypeId=?")
+				.setParameter(0, typeId).list();
+
+	}
+
+	// 以下三个方法--组合查询基金交易记录
+
+	private DetachedCriteria getDetachedCriteriaByHelper(FundQueryHelper helper) {
+		DetachedCriteria criteria = DetachedCriteria.forClass(Fund.class);
+		if (StringUtils.isNotEmpty(helper.getQryFundNo())) {
+			criteria.add(Restrictions.eq("FundNo",
+					Integer.parseInt(helper.getQryFundNo())));
+		}
+		if (StringUtils.isNotEmpty(helper.getQryFundName())) {
+			criteria.add(Restrictions.like("FundName",
+					"%" + helper.getQryFundName() + "%"));
+		}
+		if (StringUtils.isNotEmpty(helper.getQryFundStatus())) {
+			criteria.add(Restrictions.eq("FundStatus",
+					helper.getQryFundStatus()));
+		}
+		if (StringUtils.isNotEmpty(helper.getQryfundTypeId())) {
+			criteria.createCriteria("fundType").add(
+					Restrictions.eq("fundTypeId",
+							Integer.parseInt(helper.getQryfundTypeId())));
+		}
+		criteria.addOrder(Order.desc("FundNo"));
+		return criteria;
+	}
+
+	@Override
+	public int totalFundsInfo(FundQueryHelper helper) {
+		DetachedCriteria detachedCriteria = this
+				.getDetachedCriteriaByHelper(helper);
+		detachedCriteria.setProjection(Projections.rowCount());
+		Session session = this.getSession();
+		Transaction trans = session.beginTransaction();
+		int cnt = 0;
+		try {
+			Criteria criteria = detachedCriteria.getExecutableCriteria(session);
+			cnt = Integer.parseInt(criteria.list().get(0).toString());
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		} finally {
+			if (session.isOpen())
+				session.close();
+		}
+
+		return cnt;
+	}
+
+	@Override
+	public List<Fund> allFundsInfos(FundQueryHelper helper, int beginIdx) {
+		Session session = this.getSession();
+		Transaction trans = session.beginTransaction();
+		List<Fund> fundList = null;
+		int endIdx;
+		try {
+			DetachedCriteria detachedCriteria = this
+					.getDetachedCriteriaByHelper(helper);
+			Criteria criteria = detachedCriteria.getExecutableCriteria(session);
+			if ((5 * beginIdx) < this.totalFundsInfo(helper)
+					|| (5 * beginIdx) == this.totalFundsInfo(helper)) {
+				endIdx = 5;
+			} else {
+				endIdx = this.totalFundsInfo(helper) - 5 * (beginIdx - 1);
+			}
+			fundList = criteria.setFirstResult(5 * (beginIdx - 1))
+					.setMaxResults(endIdx).list();
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		} finally {
+			if (session.isOpen())
+				session.close();
+		}
+		return fundList;
+	}
+
+	/**
+	 * 增加基金类型
+	 */
+	public void fundTypeAdd(FundType fundType) {
+		this.getHibernateTemplate().save(fundType);
+
+	}
+
+	/**
+	 * 删除基金类型
+	 */
+	public void fundTypeDelete(Integer typeId) {
+		try {
+			FundType fundType = (FundType) this.getHibernateTemplate().get(
+					FundType.class, typeId);
+			this.getHibernateTemplate().delete(fundType);
+		} catch (Exception e) {
+			throw new DataAccessException("当前该类型有基金产品，不能删除该类型");
+		}
+
+	}
+
+	/**
+	 * 获取所有客户的持仓情况
+	 */
+	public List<FundHold> loadFundHold() {
+		return this.getHibernateTemplate().find("from FundHold");
+	}
+
+	@Override
+	public void addAdminUser(AdminUser adminUser) {
+		this.getHibernateTemplate().save(adminUser);
+	}
+
+	@Override
+	public AdminUser findAdminUserById(String adminUserId) {
+		return (AdminUser) this.getHibernateTemplate().get(AdminUser.class,
+				adminUserId);
+	}
+
+	@Override
+	public void deleteAdminUserById(String adminUserId) {
+		AdminUser adminUser = this.findAdminUserById(adminUserId);
+		this.getHibernateTemplate().delete(adminUser);
+	}
+
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
+	"http://struts.apache.org/dtds/struts-2.1.7.dtd">
+
+<struts>
+
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <constant name="struts.devMode" value="false" />
+    <constant name="struts.i18n.encoding" value="UTF-8"/> 
+    <constant name="struts.ui.theme" value="simple"></constant>
+    <constant name="struts.objectFactory" value="spring" />
+    <constant name="struts.objectFactory.spring.autoWire" value="name" />
+
+    <package name="base-package" abstract="true" extends="struts-default">
+    
+    </package>
+   <!-- 后台操作员 -->
+    <package name="admin" namespace="/admin" extends="base-package,json-default"> 
+         <action name="*" class="AdminUserAction" method="{1}">
+            <result name="fundadd" type="json"> </result>
+            <result name="adminlogin" type="json"></result>
+            <result name="loadfund" type="json"></result>
+            <result name="fundupdate" type="json"></result>
+            <result name="funddelete" type="json"></result>
+           <result name="batchdelete" type="json"></result>
+           <result name="loadclient" type="json"></result>
+           <result name="frozenorthaw" type="json"></result> 
+           <result name="addfeature" type="json"></result> 
+           <result name="deletefeature" type="json"></result>
+            <result name="loadfeature" type="json"></result> 
+            <result name="fundtype" type="json"></result>     
+            <result name="updatefeature" type="json"></result>  
+            <result name="getfundbytype" type="json"></result>   
+            <result name="toGetOneFund" type="json"></result>    
+            <result name="lookFundByHelper" type="json"></result>        
+        </action>                                      
+  </package>  
+  
+  <!--用户增删改查 --> 
+      <package name="client" namespace="/client" extends="base-package,json-default"> 
+         <action name="*" class="ClientUserAction" method="{1}">
+           <result name="clientlogin" type="json"/>
+           <result name="send_email" type="json"/>
+           <result name="client_regist" type="json"/>
+           <result name="preupdate_ClientUser" type="json"/>
+           <result name="update_ClientUser" type="json"/>
+           <result name="client_modifyPwd" type="json"/>
+        </action>  
+  </package>
+  
+    <!--用户交易--> 
+      <package name="client-trans-info" namespace="/clientTrans" extends="base-package,json-default">         
+          <action name="*" class="ClientUserTransAction" method="{1}">
+            <result name="saveBalance_ClientUser" type="json"/>
+            <result name="getBalance_ClientUser" type="json"/>
+            <result name="transBalance_ClientUser" type="json"/>
+            <result name="loadBalance_ClientUser" type="json"/>
+            <result name="loadBalanceListHelper_ClientUser" type="json"/>
+        </action>                                          
+  </package>
+  
+  <!--基金交易操作  -->
+  <package name="fund-trans-info" namespace="/fundtrans" extends="base-package,json-default">
+      <action name="*" class="FundTransInfoAction" method="{1}">
+        <result name="applyfund" type="json"/> 
+        <result name="ransomfund" type="json"/> 
+          <result name="loadall" type="json"/>
+       <result name="passAday" type="json"/>  
+      <result name="raterecord" type="json"/>             
+      </action>
+  </package>
+
+</struts>
+
+ 

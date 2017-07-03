@@ -1,0 +1,68 @@
+package edu.fjut.fundsys.domain;
+
+public class Feature extends ValueObject {
+	private Integer featureId=1;
+	private String featureTitle;
+	private String featureDescribe;
+	private String featureInfo;
+	private String featureInfo2;
+	
+	
+
+	public String getFeatureInfo2() {
+		return featureInfo2;
+	}
+
+	public void setFeatureInfo2(String featureInfo2) {
+		this.featureInfo2 = featureInfo2;
+	}
+
+	public Integer getFeatureId() {
+		return featureId;
+	}
+
+	public void setFeatureId(Integer featureId) {
+		this.featureId = featureId;
+	}
+
+	public String getFeatureTitle() {
+		return featureTitle;
+	}
+
+	public void setFeatureTitle(String featureTitle) {
+		this.featureTitle = featureTitle;
+	}
+
+	public String getFeatureDescribe() {
+		return featureDescribe;
+	}
+
+	public void setFeatureDescribe(String featureDescribe) {
+		this.featureDescribe = featureDescribe;
+	}
+
+	public String getFeatureInfo() {
+		return featureInfo;
+	}
+
+	public void setFeatureInfo(String featureInfo) {
+		this.featureInfo = featureInfo;
+	}
+
+
+
+	public Feature(String featureTitle, String featureDescribe,
+			String featureInfo, String featureInfo2) {
+		super();
+		this.featureTitle = featureTitle;
+		this.featureDescribe = featureDescribe;
+		this.featureInfo = featureInfo;
+		this.featureInfo2 = featureInfo2;
+	}
+
+	public Feature() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+}

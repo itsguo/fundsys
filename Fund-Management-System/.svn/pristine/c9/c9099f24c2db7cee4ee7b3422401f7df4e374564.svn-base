@@ -1,0 +1,83 @@
+package edu.fjut.fundsys.domain;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.apache.struts2.json.annotations.JSON;
+
+public class FundTransInfo extends ValueObject {
+	private Integer transId=10000;
+	private String transType;
+	private Date createDate;
+	private Double price;
+
+	private ClientUser clientUser;
+	private Fund fund;
+
+	public Integer getTransId() {
+		return transId;
+	}
+
+	public void setTransId(Integer transId) {
+		this.transId = transId;
+	}
+
+	public String getTransType() {
+		return transType;
+	}
+
+	public void setTransType(String transType) {
+		this.transType = transType;
+	}
+	@JSON(format = "yyyy-MM-dd")
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+
+	}
+
+   
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(String price) {
+		 String[] s=price.split(",");
+		  this.price=Double.valueOf(s[0]);
+	}
+
+	public ClientUser getClientUser() {
+		return clientUser;
+	}
+
+	public void setClientUser(ClientUser clientUser) {
+		this.clientUser = clientUser;
+	}
+
+	public Fund getFund() {
+		return fund;
+	}
+
+	public void setFund(Fund fund) {
+		this.fund = fund;
+	}
+
+	public FundTransInfo() throws ParseException {
+		super();
+		this.createDate=new Date();	
+	}
+
+	@Override
+	public String toString() {
+		return "FundTransInfo [transId=" + transId + ", transType=" + transType
+				+ ", createDate=" + createDate + ", price=" + price
+				+ ", clientUser=" + clientUser + ", fund=" + fund + "]";
+	}
+	
+
+}

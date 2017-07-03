@@ -1,0 +1,12 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.Fund;
+
+public interface AdminUserDao {
+	  void checkUser(AdminUser user);
+	  void fundAdd(Fund fund);
+	  List<Fund> fundList();
+}

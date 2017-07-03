@@ -1,0 +1,10 @@
+body,tr,td,th,div,span,ul,li,input,select,option,textarea{
+    font-size:14px;
+    font-family:verdana;
+    padding:0px;
+    margin:0px;   
+}
+body{
+	background-image: url("../pics/login.png");
+	background-attachment: fixed;
+}

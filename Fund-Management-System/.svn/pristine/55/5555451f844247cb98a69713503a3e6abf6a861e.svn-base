@@ -1,0 +1,148 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+
+
+
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.helper.CLientUserQueryhelper;
+
+public class ClientUserDaoImpl extends HibernateDaoSupport implements
+		ClientUserDao {
+
+	@Override
+	public void checkUser(String no, String pwd) {
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, no);
+		if (clientUser == null) {
+			throw new DataAccessException("用户不存在");
+		}
+		if (!clientUser.getClientPwd().equals(pwd)) {
+			throw new DataAccessException("用户存在,但密码不正确");
+		}
+	}
+
+	@Override
+	public void addclientUser(ClientUser clientUser) {
+		try {
+			this.getHibernateTemplate().save(clientUser);
+		} catch (Exception e) {
+			throw new DataAccessException("用户名已经存在");
+		}
+
+	}
+
+	@Override
+	public ClientUser getClientUserById(String clientUserId) {
+		return (ClientUser) this.getHibernateTemplate().get(ClientUser.class,
+				clientUserId);
+	}
+
+	@Override
+	public void updateClientUser(ClientUser clientUser) {
+		this.getHibernateTemplate().update(clientUser);
+	}
+
+	@Override
+	public void modifyClientUserPwd(String clientUserId, String pwd) {
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, clientUserId);
+		if (clientUser == null) {
+			throw new DataAccessException("用户不存在,输入有误");
+		}
+		clientUser.setClientPwd(pwd);
+		this.updateClientUser(clientUser);
+	}
+
+	@Override
+	public List<ClientUserTrans> clientUserFindAll(String clientUserId) {
+		return this.getHibernateTemplate().find("from ClientUserTrans c where c.clientUser.ClientId="+clientUserId+" order by c.clientUser.ClientId desc");
+	}
+
+	@Override
+	public void addClientUserTrans(ClientUserTrans clientUserTrans) {
+		this.getHibernateTemplate().save(clientUserTrans);
+	}
+	
+	
+	//组合查询
+	private DetachedCriteria getCriteriaByHelper(CLientUserQueryhelper helper){
+		DetachedCriteria criteria=DetachedCriteria.forClass(ClientUserTrans.class);
+		if(StringUtils.isNotEmpty(helper.getTransId())){
+			criteria.add(Restrictions.eq("transId",Integer.parseInt(helper.getTransId())));
+		}
+		if(StringUtils.isNotEmpty(helper.getTransType())){
+			criteria.add(Restrictions.eq("transType",helper.getTransType()));
+		}
+		if(StringUtils.isNotEmpty(helper.getTargetId())){
+			criteria.add(Restrictions.eq("targetId", helper.getTargetId()));
+		}
+		criteria.addOrder(Order.asc("transId"));
+		return criteria;
+	}
+
+	
+	@Override
+	public int totalNumber(CLientUserQueryhelper helper) {
+		DetachedCriteria detachedCriteria=this.getCriteriaByHelper(helper);
+		detachedCriteria.setProjection(Projections.rowCount());
+		Session session=this.getSession();
+		Transaction trans=session.beginTransaction();
+		int cnt=0;
+		try {
+			Criteria criteria=detachedCriteria.getExecutableCriteria(session);
+			cnt=Integer.parseInt(criteria.list().get(0).toString());
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		}finally{
+			if(session.isOpen())
+				session.close();
+		}
+		return cnt;
+	}
+
+	@Override
+	public List<ClientUserTrans> totalClientUserTrans(
+			CLientUserQueryhelper helper, int beginIdx) {
+		Session session = this.getSession();
+		Transaction trans = session.beginTransaction();
+		List<ClientUserTrans> clientUserTransList = null;
+		int endIdx;
+		try {
+			DetachedCriteria detachedCriteria = this.getCriteriaByHelper(helper);
+			Criteria criteria = detachedCriteria.getExecutableCriteria(session);
+			if ((5 * beginIdx) <this.totalNumber(helper)||(5 * beginIdx) ==this.totalNumber(helper)) {
+				 endIdx =5;
+			} else {
+				endIdx = this.totalNumber(helper)-5*(beginIdx-1);
+			}
+			clientUserTransList = criteria.setFirstResult(5 * (beginIdx - 1)).setMaxResults(endIdx).list();
+			trans.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			trans.rollback();
+		} finally {
+			if (session.isOpen())
+				session.close();
+		}
+		return clientUserTransList;
+	}
+
+}

@@ -1,0 +1,91 @@
+/**
+ * 
+ */
+package edu.fjut.fundsys.action;
+
+import org.apache.struts2.ServletActionContext;
+
+import edu.fjut.fundsys.domain.User;
+import edu.fjut.fundsys.exception.ApplicationException;
+import edu.fjut.fundsys.service.UserService;
+
+
+
+/**
+ * @author gjm
+ *
+ */
+public class SecurityAction extends BaseAction {
+	
+	private UserService userService;
+	private User user;
+	private String result;
+	
+		
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	public void setUserService(UserService userService) {
+		this.userService = userService;
+	}
+
+	public User getUser() {
+		return user;
+	}
+	
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public String toLogin() throws Exception{
+		return "login_page";
+	}
+	public String toRegister() throws Exception{
+		return "register_page";
+	}
+	public String register() throws Exception{
+        userService.saveUser(user);	
+        this.addActionError("注册成功！请登录");
+		return "login_page";
+	}
+	public String checkno() throws Exception{
+    	Boolean f=userService.ajaxcheck(user.getUserNo());
+    	if(f) this.result="OK";
+    	else this.result="NO";
+    	return SUCCESS;
+    }
+
+    
+	
+	public String login() throws Exception{
+		
+		try{
+		  user = userService.checkUser(user.getUserNo(), user.getUserPwd());
+		  //保存登录用户信息到session范围
+		  ServletActionContext.getRequest().getSession().setAttribute("loginedUser", user);		  
+		  
+		}catch(ApplicationException e){
+			this.addActionError(e.getMessage());
+			return "login_page";
+		}
+		
+		return "main_action";
+	}	
+	
+	
+	public String logout() throws Exception{
+		ServletActionContext.getRequest().getSession().removeAttribute("loginedUser");	
+		ServletActionContext.getRequest().getSession().invalidate();
+		return "login_page";
+	}
+	
+	public String main() throws Exception{
+		return "main_page";
+	}
+
+}

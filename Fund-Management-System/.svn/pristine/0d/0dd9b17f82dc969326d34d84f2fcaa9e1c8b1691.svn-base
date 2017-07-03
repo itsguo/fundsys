@@ -1,0 +1,28 @@
+package edu.fjut.fundsys.service;
+
+import java.util.List;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.Feature;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.domain.FundType;
+
+public interface AdminUserService {
+	   void checkUser(AdminUser user);
+	   void fundAdd(Fund fund);
+	   Integer fundListSize();
+	   List<Fund> fundList(Integer fundPageNo);
+	   Fund getFundById(Integer FundNo);
+	   void updateFund(Fund fund);
+	   void deleteFund(Integer fundNo);
+	   void batchDeleteFund(String fundNo) ;
+	   List<ClientUser> clientList(); 
+	 void frezonOrThawClient(String clientId,String active);
+	  void featureAdd(Feature feature);
+	  List<Feature> features();
+	  void featureDelete(Integer featureId);
+	  void updateFeature(Feature feature);
+	  List<FundType> fundTypes();
+	  List<Fund> fundByType(Integer typeId);
+}

@@ -1,0 +1,80 @@
+package edu.fjut.fundsys.action;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.struts2.json.annotations.JSON;
+
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.service.FundTransInfoService;
+
+/**
+ * 基金交易Action
+ * 命名空间： /fundtrans
+ * @author Guo
+ * 基金申购操作
+ * 基金赎回赎回
+ */
+public class FundTransInfoAction extends BaseAction {
+	/*实体 */
+	private FundTransInfo fundTrans;
+	/* service */
+	private FundTransInfoService fundTransInfoService;
+	/* 返回json数据 */
+	private Map<String, Object> data = null;
+	private int resultcode;
+	private String message;
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+    
+	public void setFundTrans(FundTransInfo fundTrans) {
+		this.fundTrans = fundTrans;
+	}
+	@JSON(serialize=false)
+	public FundTransInfo getFundTrans() {
+		return fundTrans;
+	}
+
+	public void setFundTransInfoService(FundTransInfoService fundTransInfoService) {
+		this.fundTransInfoService = fundTransInfoService;
+	}
+	/**
+	 * 申购基金
+	 * @return "applyfund"
+	 */
+	public String applyFund(){
+		//fundTrans.transType 基金操作类型：申购
+		//fundTrans.price 基金申购金额
+		//fundTrans.clientUser.ClientId  购买基金的客户Id号
+		//fundTrans.fund.FundNo 购买的基金的Id号
+//FMS/fundtrans/applyFund.action?fundTrans.transType=*&fundTrans.price=*&fundTrans.clientUser.ClientId=*&fundTrans.fund.FundNo=*&token=*
+		data=new HashMap<String, Object>();
+		try {
+			fundTransInfoService.applyFund(fundTrans);
+			data.put("fundTransType", fundTrans.getTransType());
+			data.put("createDate", fundTrans.getCreateDate());
+			resultcode=0;
+			message="交易成功";
+		} catch (DataAccessException e) {
+			data.put("fundTrans", fundTrans.getTransType());
+			data.put("createDate", fundTrans.getCreateDate());
+			resultcode=-1;
+			message=e.getMessage(); 
+		}
+		
+
+		return "applyfund";
+	}
+
+}

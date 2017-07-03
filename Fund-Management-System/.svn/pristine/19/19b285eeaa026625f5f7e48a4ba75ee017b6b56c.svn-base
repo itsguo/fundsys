@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="edu.fjut.fundsys.domain">
+
+	<class name="FundTransInfo" table="FUND_TRANSINFO">
+
+		<id name="transId" type="int" column="TRANS_ID" >
+			<generator class="native"></generator> <!-- 主键生成策略 -->
+		</id>
+
+		<property name="transType" type="string" length="2" column="TRANS_TYPE" not-null="true"></property>
+	    <property name="price"  type="double"  column="PRICE" not-null="true"></property>
+		<property name="createDate" type="date"  column="CREATE_DATE" not-null="true"></property>
+		<many-to-one name="clientUser" class="edu.fjut.fundsys.domain.ClientUser" column="CLIENT_ID" fetch="join" lazy="false"></many-to-one>	    
+        <many-to-one name="fund" class="edu.fjut.fundsys.domain.Fund" column="FUND_NO" fetch="join" lazy="false"></many-to-one>	
+
+	</class>
+
+</hibernate-mapping>

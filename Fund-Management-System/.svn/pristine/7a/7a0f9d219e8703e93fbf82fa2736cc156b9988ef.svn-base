@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
+	"http://struts.apache.org/dtds/struts-2.1.7.dtd">
+
+<struts>
+
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <constant name="struts.devMode" value="false" />
+    <constant name="struts.action.extension" value="do"/>
+    <constant name="struts.i18n.encoding" value="UTF-8"/> 
+    <constant name="struts.ui.theme" value="simple"></constant>
+    <constant name="struts.objectFactory" value="spring" />
+    <constant name="struts.objectFactory.spring.autoWire" value="name" />
+
+    <package name="base-package" abstract="true" extends="struts-default">
+    </package>
+   <!-- 用户登录 -->
+    <package name="security-package" namespace="/security" extends="base-package,json-default"> 
+    
+        <action name="*" class="securityAction" method="{1}">
+           <result name="adminlogin" type="json"/>    
+        </action>                                      
+  </package>    
+
+
+</struts>
+
+ 

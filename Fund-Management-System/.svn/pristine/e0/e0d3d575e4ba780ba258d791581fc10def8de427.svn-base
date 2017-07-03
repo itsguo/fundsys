@@ -1,0 +1,26 @@
+package edu.fjut.fundsys.dao;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.ClientUser;
+
+public class ClientUserDaoImpl extends HibernateDaoSupport implements ClientUserDao {
+
+	@Override
+	public Boolean checkUser(String no, String pwd) {
+		ClientUser clientUser=(ClientUser) this.getHibernateTemplate().get(ClientUser.class, no);
+		
+		if(clientUser==null)  return false;
+	    if(!clientUser.getClientPwd().equals(pwd)){return false;}
+	    return true;
+	}
+
+	@Override
+	public void addclientUser(ClientUser clientUser) {
+		this.getHibernateTemplate().save(clientUser);
+		
+	}
+
+
+
+}

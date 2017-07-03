@@ -1,0 +1,182 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.domain.Fund;
+import edu.fjut.fundsys.domain.FundHold;
+import edu.fjut.fundsys.domain.FundTransInfo;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.utils.DifferentDaysUtils;
+
+public class FundTransInfoDaoImpl extends HibernateDaoSupport implements
+		FundTransInfoDao {
+
+	/**
+	 * 申购dao
+	 * 
+	 */
+	public void applyFund(FundTransInfo fundTransInfo) {
+		// 先查询到客户，查出其账户余额，判断客户是否被冻结
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, fundTransInfo.getClientUser().getClientId());
+		if (!clientUser.getActive()) {
+			throw new DataAccessException("该用户被冻结，不能购买");
+		}
+		Double Money = clientUser.getBalance();
+		// 查出所要申购的基金的余额
+		Fund fund = (Fund) this.getHibernateTemplate().get(Fund.class,
+				fundTransInfo.getFund().getFundNo());
+		Double fundfree = fund.getFundPrice();
+		// 进行判断，有可能客户余额比要买的基金数小，也有可能客户要买的基金数比基金余额大
+		if (Money < fundTransInfo.getPrice()) {
+			throw new DataAccessException("余额不足，购买失败");
+		}
+		if (fundfree < fundTransInfo.getPrice()) {
+			throw new DataAccessException("基金余额不足，购买失败");
+		}
+		// 以下情况是可以购买基金，进行一系列操作
+		// 进行基金交易表的存储
+		this.getHibernateTemplate().save(fundTransInfo);
+		// 进行客户表余额扣款
+		clientUser.setBalance(clientUser.getBalance()
+				- fundTransInfo.getPrice());
+		this.getHibernateTemplate().update(clientUser);
+		// 进行基金表减款
+		fund.setFundPrice(fund.getFundPrice() - fundTransInfo.getPrice());
+		this.getHibernateTemplate().update(fund);
+
+		// 进行客户金钱交易表存储
+		ClientUserTrans clientUserTrans = new ClientUserTrans();
+		clientUserTrans.setTransType("申购");
+		clientUserTrans.setTargetId("-");
+		clientUserTrans.setTransPrice(fundTransInfo.getPrice());
+		clientUserTrans.setClientUser(clientUser);
+		this.getHibernateTemplate().save(clientUserTrans);
+
+		// 进行持仓表存储
+		// 先查询持仓表中该申购记录中该客户是否拥有该基金产品
+		FundHold fundHold = (FundHold) this
+				.getHibernateTemplate()
+				.getSessionFactory()
+				.openSession()
+				.createQuery(
+						"from FundHold f where f.clientUser.ClientId=? and f.fund.FundNo=?")
+				.setParameter(0, fundTransInfo.getClientUser().getClientId())
+				.setParameter(1, fundTransInfo.getFund().getFundNo())
+				.uniqueResult();
+		// 如果没有，就添加一条持仓记录
+		if (fundHold == null) {
+			FundHold newhold = new FundHold();
+			newhold.setPrice(fundTransInfo.getPrice());
+			newhold.setClientUser(fundTransInfo.getClientUser());
+			newhold.setFund(fundTransInfo.getFund());
+			this.getHibernateTemplate().save(newhold);
+		}
+		// 如果有，就更新该客户拥有的份数
+		else {
+			Double newPrice = fundHold.getPrice() + fundTransInfo.getPrice();
+			fundHold.setPrice(newPrice);
+			this.getHibernateTemplate().update(fundHold);
+		}
+	}
+
+	/**
+	 * 赎回
+	 */
+	public void ransomFund(FundTransInfo fundTransInfo) {
+		// 先查询到客户，查出其账户余额，判断客户是否被冻结
+		ClientUser clientUser = (ClientUser) this.getHibernateTemplate().get(
+				ClientUser.class, fundTransInfo.getClientUser().getClientId());
+		if (!clientUser.getActive()) {
+			throw new DataAccessException("该用户被冻结，不能赎回");
+		}
+		Double Money = clientUser.getBalance();
+		// 查出所要赎回的基金的余额
+		Fund fund = (Fund) this.getHibernateTemplate().get(Fund.class,
+				fundTransInfo.getFund().getFundNo());
+		Double fundfree = fund.getFundPrice();
+		// 查询持仓表
+		FundHold fundHold = (FundHold) this
+				.getHibernateTemplate()
+				.getSessionFactory()
+				.openSession()
+				.createQuery(
+						"from FundHold f where f.clientUser.ClientId=? and f.fund.FundNo=?")
+				.setParameter(0, fundTransInfo.getClientUser().getClientId())
+				.setParameter(1, fundTransInfo.getFund().getFundNo())
+				.uniqueResult();
+		// 进行判断是全部赎回还是赎回一部分
+		if (fundTransInfo.getPrice() < fundHold.getPrice()) {
+			// 赎回一部分
+			// 持仓表修改
+			fundHold.setPrice(fundHold.getPrice() - fundTransInfo.getPrice());
+			this.getHibernateTemplate().update(fundHold);
+			// 退钱到客户表
+			Double income=null;
+			Double rate = fund.getRate();
+			List<FundTransInfo> fundTransInfos=(List<FundTransInfo>) this
+					.getHibernateTemplate()
+					.getSessionFactory()
+					.openSession()
+					.createQuery("from FundTransInfo f where  f.clientUser.ClientId=? and f.fund.FundNo=?")
+					.setParameter(0, fundTransInfo.getClientUser().getClientId())
+				    .setParameter(1, fundTransInfo.getFund().getFundNo()).list();
+				for (FundTransInfo fundTransInfo2 : fundTransInfos) {
+				   Integer day=DifferentDaysUtils.differentDaysByMillisecond(fundTransInfo2.getCreateDate(), new Date());
+				   income=day*rate*fundTransInfo.getPrice();
+				}	
+				clientUser.setBalance(Money +income+fundTransInfo.getPrice());
+				this.getHibernateTemplate().update(clientUser);
+			// 基金金额增加
+			fund.setFundPrice(fund.getFundPrice() + fundTransInfo.getPrice());
+			this.getHibernateTemplate().update(fund);
+			// 进行客户金钱交易表存储
+			ClientUserTrans clientUserTrans = new ClientUserTrans();
+			clientUserTrans.setTransType("赎回");
+			clientUserTrans.setTargetId("-");
+			clientUserTrans.setTransPrice(income+fundTransInfo.getPrice());
+			clientUserTrans.setClientUser(clientUser);
+			this.getHibernateTemplate().save(clientUserTrans);
+			// 进行基金操作信息表存储
+			this.getHibernateTemplate().save(fundTransInfo);
+		}
+		if (fundTransInfo.getPrice().equals(fundHold.getPrice())) {
+			// 赎回全部
+			// 持仓表修改
+			this.getHibernateTemplate().delete(fundHold);
+			// 退钱到客户表
+			Double rate = fund.getRate();
+			clientUser.setBalance(Money + (fundTransInfo.getPrice()) * rate);
+			this.getHibernateTemplate().update(clientUser);
+			// 基金金额增加
+			fund.setFundPrice(fund.getFundPrice() + fundTransInfo.getPrice());
+			this.getHibernateTemplate().update(fund);
+			// 进行客户金钱交易表存储
+			ClientUserTrans clientUserTrans = new ClientUserTrans();
+			clientUserTrans.setTransType("赎回");
+			clientUserTrans.setTargetId("-");
+			clientUserTrans.setTransPrice(fundTransInfo.getPrice());
+			clientUserTrans.setClientUser(clientUser);
+			this.getHibernateTemplate().save(clientUserTrans);
+			// 进行基金操作信息表存储
+			this.getHibernateTemplate().save(fundTransInfo);
+
+		} else {
+			// 赎回金额大于当前持仓金额
+			throw new DataAccessException("您的赎回金额大于您的持仓金额，赎回失败");
+		}
+
+	}
+    /**
+     * 查看所有基金交易信息表
+     */
+	public List<FundTransInfo> loadAll() {
+	     return this.getHibernateTemplate().find("from FundTransInfo");
+	}
+
+}

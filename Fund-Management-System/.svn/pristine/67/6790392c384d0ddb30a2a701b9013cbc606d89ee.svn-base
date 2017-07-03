@@ -1,0 +1,63 @@
+package edu.fjut.fundsys.domain;
+
+import java.util.Date;
+
+public class ClientUserTrans {
+	private String transId;
+	private String transtype;
+	private Double transPrice;
+	private int targetId;
+	private Date createDate;
+	private ClientUser clientUser;
+
+	public String getTransId() {
+		return transId;
+	}
+
+	public void setTransId(String transId) {
+		this.transId = transId;
+	}
+
+	public String getTranstype() {
+		return transtype;
+	}
+
+	public void setTranstype(String transtype) {
+		this.transtype = transtype;
+	}
+
+	public Double getTransPrice() {
+		return transPrice;
+	}
+
+	public void setTransPrice(Double transPrice) {
+		this.transPrice = transPrice;
+	}
+
+
+
+	public int getTargetId() {
+		return targetId;
+	}
+
+	public void setTargetId(int targetId) {
+		this.targetId = targetId;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public ClientUser getClientUser() {
+		return clientUser;
+	}
+
+	public void setClientUser(ClientUser clientUser) {
+		this.clientUser = clientUser;
+	}
+
+}

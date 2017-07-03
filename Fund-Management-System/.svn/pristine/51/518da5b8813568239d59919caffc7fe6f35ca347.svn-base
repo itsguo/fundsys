@@ -1,0 +1,38 @@
+package edu.fjut.fundsys.service;
+
+import edu.fjut.fundsys.dao.ClientUserDao;
+import edu.fjut.fundsys.domain.ClientUser;
+
+public class ClientUserServiceImpl implements ClientUserService {
+	private ClientUserDao clientUserDao;
+
+	public void setClientUserDao(ClientUserDao clientUserDao) {
+		this.clientUserDao = clientUserDao;
+	}
+
+	@Override
+	public void checkUser(String no, String pwd) {
+		clientUserDao.checkUser(no, pwd);
+	}
+
+	@Override
+	public void addClientUser(ClientUser clientUser) {
+		clientUserDao.addclientUser(clientUser);
+	}
+
+	@Override
+	public ClientUser getClientUserById(String clientUserId) {
+		return clientUserDao.getClientUserById(clientUserId);
+	}
+
+	@Override
+	public void updateClientUser(ClientUser clientUser) {
+		clientUserDao.updateClientUser(clientUser);
+	}
+
+	@Override
+	public void modifyClientUserPwd(String clientUserId, String pwd) {
+		clientUserDao.modifyClientUserPwd(clientUserId, pwd);
+	}
+
+}

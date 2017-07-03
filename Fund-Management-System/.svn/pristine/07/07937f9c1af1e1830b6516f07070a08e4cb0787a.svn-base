@@ -1,0 +1,236 @@
+package edu.fjut.fundsys.action;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.struts2.ServletActionContext;
+import org.apache.struts2.json.annotations.JSON;
+import org.omg.CORBA.PRIVATE_MEMBER;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.jwt.Jwt;
+import edu.fjut.fundsys.service.ClientUserService;
+import edu.fjut.fundsys.utils.SendMail;
+
+/**
+ * 
+ * 
+ */
+public class ClientUserAction extends BaseAction {
+	private String ClientId;
+	private String ClientPwd;
+	private String ClientName;
+	private String Sex;
+	private String Phone;
+	private String Address;
+	private String Email;
+	private Double Balance;
+	private Boolean Active;
+
+	private int resultcode;
+	private String message;
+	private String token;
+	private Map<String, Object> data = null;
+	private ClientUserService clientUserService;
+
+	private ClientUser clientUser;
+	private String checkCode;
+	private String pwd;
+	private String clientCheckCode;
+
+	
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public void setResultcode(int resultcode) {
+		this.resultcode = resultcode;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	@JSON(serialize = false)
+	public String getClientCheckCode() {
+		return clientCheckCode;
+	}
+
+	public void setClientCheckCode(String clientCheckCode) {
+		this.clientCheckCode = clientCheckCode;
+	}
+	@JSON(serialize = false)
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+	@JSON(serialize = false)
+	public ClientUser getClientUser() {
+		return clientUser;
+	}
+
+	public void setClientUser(ClientUser clientUser) {
+		this.clientUser = clientUser;
+	}
+	@JSON(serialize = false)
+	public String getCheckCode() {
+		return checkCode;
+	}
+
+	public void setCheckCode(String checkCode) {
+		this.checkCode = checkCode;
+	}
+
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+
+
+	public void setClientId(String clientId) {
+		ClientId = clientId;
+	}
+
+	public void setClientPwd(String clientPwd) {
+		ClientPwd = clientPwd;
+	}
+
+	public void setClientName(String clientName) {
+		ClientName = clientName;
+	}
+
+	public void setSex(String sex) {
+		Sex = sex;
+	}
+
+	public void setPhone(String phone) {
+		Phone = phone;
+	}
+
+	public void setAddress(String address) {
+		Address = address;
+	}
+
+	public void setEmail(String email) {
+		Email = email;
+	}
+
+	public void setBalance(Double balance) {
+		Balance = balance;
+	}
+
+	public void setActive(Boolean active) {
+		Active = active;
+	}
+
+	public void setClientUserService(ClientUserService clientUserService) {
+		this.clientUserService = clientUserService;
+	}
+
+	public String clientLogin() {
+		//ClientId   ClientPwd
+	    data=new HashMap<String, Object>();
+	    try {
+			clientUserService.checkUser(ClientId, ClientPwd);
+			resultcode=0;
+			message="认证成功";
+			Map<String, Object> payload = new HashMap<String, Object>();
+			Date date = new Date();
+			payload.put("uid", ClientId);// 用户ID
+			payload.put("iat", date.getTime());// 生成时间
+			payload.put("ext", date.getTime() + 1000 * 60 * 60);// 过期时间1小时
+			token = Jwt.createToken(payload);
+			data.put("token", token);
+	        data.put("ClientId", ClientId);
+		} catch (DataAccessException e) {
+           resultcode=-1;
+           message=e.getMessage();
+           data.put("ClientId", ClientId);
+		}
+		return "clientlogin";
+	}
+
+	public String checkEmail() {
+		String regex = "[a-zA-Z_0-9]+@[a-zA-Z_0-9]{2,6}(\\.[a-zA-Z_0-9]{2,3})+";
+		if (!clientUser.getEmail().matches(regex)) {
+			this.addFieldError("clientUser.Email", "邮箱不正确");
+			return "regist_page";
+		} else {
+			this.checkCode = UUID.randomUUID().toString();
+			ServletActionContext.getRequest().getSession()
+					.setAttribute("code", checkCode);
+			ServletActionContext.getRequest().getSession()
+					.setMaxInactiveInterval(1);
+			SendMail sm = new SendMail(clientUser.getEmail(), checkCode,
+					clientUser.getClientName());
+			sm.start();
+			return null;
+		}
+	}
+
+	public String registCilentUser() {
+		/*
+		 * 这个类需要的是用户注册的全部信息,注意pwd为重复密码不保存在数据库 clientUser.ClientId
+		 * clientUser.ClientPwd pwd//重复密码 clientUser.ClientName clientUser.Sex
+		 * clientUser.Phone clientUser.Address clientUser.Email
+		 * clientUser.Balance Active
+		 */
+		data = new HashMap<String, Object>();
+		String code = (String) ServletActionContext.getRequest().getSession()
+				.getAttribute("code");
+		ServletActionContext.getRequest().getSession().removeAttribute("code");
+		ServletActionContext.getRequest().getSession().invalidate();
+		if (!clientUser.getClientPwd().equals(pwd)) {
+			this.addFieldError("clientUser.ClientPwd", "两次密码不一致");
+			return "regist_page";
+		} else if (clientCheckCode != this.checkCode) {
+			this.addActionError("验证码过期!");
+			return "regist_page";
+		} else if (clientCheckCode == null) {
+			this.addActionError("验证码过期!");
+			return "regist_page";
+		}
+		clientUserService.addClientUser(clientUser);
+		data.put("clientUser", clientUser);
+		resultcode = 1;
+		message = "用户注册成功";
+		return "client_regist_success";
+	}
+
+	public String preupdateClientUser() {
+		data = new HashMap<String, Object>();
+		clientUser = clientUserService.getClientUserById(clientUser
+				.getClientId());
+		data.put("clientUser", clientUser);
+		resultcode = 1;
+		message = "用户更新界面显示";
+		return "preupdate_ClientUser";
+	}
+
+	public String updateClientUser() {
+		clientUserService.updateClientUser(clientUser);
+		data.put("", "");
+		resultcode = 1;
+		message = "更新成功";
+		return "update_ClientUser";
+	}
+
+	public String modifyPwd() {
+		clientUserService.modifyClientUserPwd(clientUser.getClientId(),
+				clientUser.getClientPwd());
+		data.put("", "");
+		resultcode = 1;
+		message = "密码修改成功";
+		return "modifyPwd";
+	}
+}

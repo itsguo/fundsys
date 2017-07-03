@@ -1,0 +1,184 @@
+package edu.fjut.fundsys.action;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.ClientUserTrans;
+import edu.fjut.fundsys.exception.ApplicationException;
+import edu.fjut.fundsys.exception.DataAccessException;
+import edu.fjut.fundsys.service.ClientUserService;
+
+public class ClientUserTransAction extends BaseAction {
+	private int resultcode;
+	private String message;
+	private String token;
+	private Map<String, Object> data = null;
+	
+	private ClientUserService clientUserService;
+	private ClientUser clientUser;
+	private String balance;
+	private ClientUserTrans clientUserTrans;
+	private String anotherClientUserId;
+	private String anotherClientUserName;
+	private List<ClientUserTrans> clientUserTransList=null;
+	
+	public void setClientUserTransList(List<ClientUserTrans> clientUserTransList) {
+		this.clientUserTransList = clientUserTransList;
+	}
+
+	public void setAnotherClientUserId(String anotherClientUserId) {
+		this.anotherClientUserId = anotherClientUserId;
+	}
+
+	public void setAnotherClientUserName(String anotherClientUserName) {
+		this.anotherClientUserName = anotherClientUserName;
+	}
+
+	public void setClientUserTrans(ClientUserTrans clientUserTrans) {
+		this.clientUserTrans = clientUserTrans;
+	}
+
+	public void setClientUser(ClientUser clientUser) {
+		this.clientUser = clientUser;
+	}
+
+
+	public void setBalance(String balance) {
+		this.balance = balance;
+	}
+
+	public int getResultcode() {
+		return resultcode;
+	}
+
+	public void setResultcode(int resultcode) {
+		this.resultcode = resultcode;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public Map<String, Object> getData() {
+		return data;
+	}
+
+	public void setData(Map<String, Object> data) {
+		this.data = data;
+	}
+
+	public void setClientUserService(ClientUserService clientUserService) {
+		this.clientUserService = clientUserService;
+	}
+
+	public String saveBalanceClientUser() {
+		/*
+		 * clientUserTrans.clientUser.ClientId
+		 * balance//存钱金额
+		 */
+		data = new HashMap<String, Object>();
+		try {
+			double saveMoney=Double.parseDouble(balance);
+			clientUserService.clientUserSaveBalance(clientUserTrans.getClientUser().getClientId(),saveMoney);
+			System.out.println(saveMoney);
+			System.out.println(clientUserTrans.getClientUser().getClientId());
+			clientUserTrans.setTransType("存款");
+			clientUserTrans.setTransPrice(saveMoney);
+			clientUserTrans.setTargetId("-");
+			
+			clientUserService.addClientUserTrans(clientUserTrans);
+			data.put("存款账户号",clientUserTrans.getClientUser().getClientId());
+			data.put("存款金额",saveMoney);
+			resultcode = 0;
+			message = "用户存钱成功";
+		} catch (ApplicationException e) {
+			data.put("存款账户号",clientUserTrans.getClientUser().getClientId());
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "saveBalance_ClientUser";
+	}
+
+	public String gotBalanceClientUser() {
+		/*
+		 * clientUserTrans.clientUser.ClientId
+		 * balance//存钱金额
+		 */
+		data = new HashMap<String, Object>();
+		try {
+			double getMoney=Double.parseDouble(balance);
+			clientUserService.clientUserGetBalance(clientUserTrans.getClientUser().getClientId(),getMoney);
+			clientUserTrans.setTransType("取款");
+			clientUserTrans.setTransPrice(getMoney);
+			clientUserTrans.setTargetId("-");
+			clientUserService.addClientUserTrans(clientUserTrans);
+			data.put("取款账户号",clientUserTrans.getClientUser().getClientId());
+			data.put("取款金额",getMoney);
+			resultcode = 0;
+			message = "用户取款成功";
+		} catch (ApplicationException e) {
+			data.put("取款账户号",clientUserTrans.getClientUser().getClientId());
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "getBalance_ClientUser";
+	}
+
+	public String transBalanceClientUser() {
+		/*
+		 * clientUserTrans.clientUser.ClientId
+		 * balance//存钱金额
+		 * anotherClientUserId//对方账户
+		 * anotherClientUserName//对方姓名
+		 */
+		data = new HashMap<String, Object>();
+		try {
+			double transMoney=Double.parseDouble(balance);
+			clientUserService.clientUserTransBalance(anotherClientUserId, anotherClientUserName, transMoney,clientUserTrans.getClientUser().getClientId());
+			clientUserTrans.setTransType("转账");
+			clientUserTrans.setTransPrice(transMoney);
+			clientUserTrans.setTargetId(anotherClientUserId);
+			clientUserService.addClientUserTrans(clientUserTrans);
+			
+			data.put("对方账户号", anotherClientUserId);
+			data.put("对方姓名", anotherClientUserName);
+			data.put("转账金额", transMoney);
+			data.put("转账账户", clientUserTrans.getClientUser().getClientId());
+			resultcode = 0;
+			message = "用户转账成功";
+		} catch (ApplicationException e) {
+			data.put("转账账户", clientUserTrans.getClientUser().getClientId());
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "transBalance_ClientUser";
+	}
+
+	public String loadBalanceClientUser() {
+		/*
+		 * clientUserTrans.clientUser.ClientId
+		 */
+		data = new HashMap<String, Object>();
+		try {
+			clientUserTransList=clientUserService.clientUserFindAll(clientUserTrans.getClientUser().getClientId());
+			data.put("clientUserTransList", clientUserTransList);
+			resultcode = 0;
+			message = "用户交易明细";
+		} catch (DataAccessException e) {
+			data.put("clientUserTransList", clientUserTransList);
+			resultcode = -1;
+			message = e.getMessage();
+		}
+		return "loadBalance_ClientUser";
+	}
+}

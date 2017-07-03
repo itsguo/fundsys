@@ -1,0 +1,9 @@
+package edu.fjut.fundsys.service;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.Fund;
+
+public interface AdminUserService {
+	   Boolean checkUser(AdminUser user);
+	   void fundAdd(Fund fund);
+}

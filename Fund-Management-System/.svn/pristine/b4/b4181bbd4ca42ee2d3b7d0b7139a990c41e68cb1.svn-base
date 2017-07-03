@@ -1,0 +1,24 @@
+package edu.fjut.fundsys.dao;
+
+import java.util.List;
+
+import edu.fjut.fundsys.domain.AdminUser;
+import edu.fjut.fundsys.domain.ClientUser;
+import edu.fjut.fundsys.domain.Feature;
+import edu.fjut.fundsys.domain.Fund;
+
+public interface AdminUserDao {
+	  void checkUser(AdminUser user);
+	  void fundAdd(Fund fund);
+	  List<Fund> fundList();
+	  Fund getFundById(Integer FundNo);
+	  void updateFund(Fund fund);
+	  void deleteFund(Integer fundNo);
+	  void batchDeleteFund(List<Integer> fundNoList) ;
+	  List<ClientUser> clientList(); 
+	  void frezonOrThawClient(String clientId,String active);
+	  void featureAdd(Feature feature);
+	  List<Feature> features();
+	  void deleteFeature(Integer featureId);
+	  Feature findFeatureById(Integer featureId);
+}
